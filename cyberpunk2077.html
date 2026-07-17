@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛博朋克2077 | Cyberpunk 2077 - 夜之城的传奇</title>
+    <style>
+        /* ========== CSS Variables ========== */
+        :root {
+            --neon-yellow: #fcee0a;
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff0055;
+            --neon-purple: #b300ff;
+            --dark-bg: #0a0a0a;
+            --dark-card: #111118;
+            --dark-card-alt: #1a1a24;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0b0;
+            --glow-yellow: 0 0 10px #fcee0a, 0 0 30px #fcee0a55;
+            --glow-cyan: 0 0 10px #00f0ff, 0 0 30px #00f0ff55;
+            --glow-magenta: 0 0 10px #ff0055, 0 0 30px #ff005555;
+        }
+
+        /* ========== Reset & Base ========== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon-yellow) var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--neon-yellow); border-radius: 3px; }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* ========== Scanline Overlay ========== */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ========== Navigation ========== */
+        nav {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            background: rgba(10, 10, 10, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(252, 238, 10, 0.2);
+            z-index: 1000;
+            padding: 0 2rem;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            box-shadow: 0 2px 20px rgba(252, 238, 10, 0.15);
+        }
+
+        .nav-inner {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--neon-yellow), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            transition: color 0.3s;
+            padding: 0.3rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0; height: 2px;
+            background: var(--neon-yellow);
+            transition: width 0.3s ease;
+            box-shadow: var(--glow-yellow);
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-yellow);
+            text-shadow: 0 0 10px rgba(252, 238, 10, 0.5);
+        }
+        .nav-links a:hover::after { width: 100%; }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .menu-toggle span {
+            width: 25px; height: 2px;
+            background: var(--neon-yellow);
+            transition: 0.3s;
+        }
+
+        /* ========== Hero Section ========== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background:
+                radial-gradient(ellipse at 50% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 0, 85, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 20% 80%, rgba(252, 238, 10, 0.04) 0%, transparent 50%),
+                linear-gradient(180deg, #050510 0%, #0a0a1a 50%, #0a0a0a 100%);
+        }
+
+        .hero-bg-grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(252, 238, 10, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(252, 238, 10, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridPulse 4s ease-in-out infinite;
+            perspective: 500px;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .hero-bg-grid::before {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 60%;
+            background: linear-gradient(0deg, #0a0a0a 0%, transparent 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            max-width: 900px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.4rem 1.5rem;
+            border: 1px solid var(--neon-yellow);
+            border-radius: 2px;
+            color: var(--neon-yellow);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 15px rgba(252, 238, 10, 0.2);
+            animation: badgeFlicker 3s ease-in-out infinite;
+        }
+
+        @keyframes badgeFlicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 1; }
+            93% { opacity: 0.3; }
+            94% { opacity: 1; }
+            96% { opacity: 0.5; }
+            97% { opacity: 1; }
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 6.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .hero-title .cyber {
+            display: block;
+            background: linear-gradient(135deg, var(--neon-yellow) 0%, #ffaa00 50%, var(--neon-yellow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(252, 238, 10, 0.4));
+        }
+
+        .hero-title .punk {
+            display: block;
+            font-size: 0.65em;
+            background: linear-gradient(135deg, var(--neon-cyan) 0%, #00ccff 50%, var(--neon-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.4));
+            margin-top: -0.2em;
+        }
+
+        /* Glitch effect */
+        .glitch-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            margin-top: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            margin-top: 2.5rem;
+            padding: 0.9rem 2.5rem;
+            border: 2px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            text-decoration: none;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .hero-cta::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--neon-yellow);
+            transition: left 0.4s;
+            z-index: -1;
+        }
+
+        .hero-cta:hover::before { left: 0; }
+        .hero-cta:hover {
+            color: #000;
+            box-shadow: 0 0 30px rgba(252, 238, 10, 0.5), 0 0 60px rgba(252, 238, 10, 0.2);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: bounce 2s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(180deg, var(--neon-yellow), transparent);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* ========== Section Common ========== */
+        section {
+            padding: 6rem 2rem;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 4px;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--neon-cyan);
+            padding-left: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin-bottom: 3rem;
+            font-size: 1.05rem;
+        }
+
+        /* ========== About / Background Section ========== */
+        #background {
+            background: linear-gradient(180deg, #0a0a0a, #0d0d18, #0a0a0a);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .about-card {
+            background: var(--dark-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s;
+            cursor: default;
+        }
+
+        .about-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 0;
+            background: var(--neon-yellow);
+            transition: height 0.4s;
+            box-shadow: 0 0 10px var(--neon-yellow);
+        }
+
+        .about-card:hover::before { height: 100%; }
+        .about-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border-color: rgba(252, 238, 10, 0.2);
+        }
+
+        .about-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .about-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .about-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        /* ========== Stats Bar ========== */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            padding: 3rem 2rem;
+            background: var(--dark-card);
+            border-top: 1px solid rgba(252, 238, 10, 0.1);
+            border-bottom: 1px solid rgba(252, 238, 10, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--neon-yellow), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-top: 0.3rem;
+        }
+
+        /* ========== Game Intro ========== */
+        #game-intro {
+            background: linear-gradient(180deg, #0a0a0a, #0d0d18);
+        }
+
+        .intro-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .intro-image {
+            width: 100%;
+            aspect-ratio: 16/10;
+            background: var(--dark-card);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .intro-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .intro-image:hover img { transform: scale(1.05); }
+
+        .intro-image::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), transparent 60%);
+            pointer-events: none;
+        }
+
+        .intro-image .corner {
+            position: absolute;
+            width: 20px; height: 20px;
+            border-color: var(--neon-cyan);
+            border-style: solid;
+            z-index: 2;
+        }
+        .corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+        .corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+        .corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+        .corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+        .intro-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .intro-text .highlight {
+            color: var(--neon-yellow);
+            font-weight: 600;
+        }
+
+        .intro-text p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 0.98rem;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .tag {
+            padding: 0.3rem 1rem;
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            color: var(--neon-cyan);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            cursor: default;
+        }
+
+        .tag:hover {
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        /* ========== Lifepaths ========== */
+        #lifepaths {
+            background: #0a0a0a;
+        }
+
+        .lifepath-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .lifepath-card {
+            background: var(--dark-card);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lifepath-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .lifepath-card.nomad { border-top: 3px solid #ffaa00; }
+        .lifepath-card.streetkid { border-top: 3px solid var(--neon-magenta); }
+        .lifepath-card.corpo { border-top: 3px solid var(--neon-cyan); }
+
+        .lifepath-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .lifepath-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .lifepath-tagline {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .lifepath-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        /* ========== Guide Section ========== */
+        #guide {
+            background: linear-gradient(180deg, #0a0a0a, #0d0d18);
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+
+        .guide-card {
+            background: var(--dark-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            transition: all 0.4s;
+        }
+
+        .guide-card:hover {
+            border-color: rgba(252, 238, 10, 0.3);
+            box-shadow: 0 0 30px rgba(252, 238, 10, 0.08);
+        }
+
+        .guide-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .guide-card-num {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: rgba(252, 238, 10, 0.2);
+            line-height: 1;
+        }
+
+        .guide-card h3 {
+            font-size: 1.15rem;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .guide-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        /* ========== Builds ========== */
+        #builds {
+            background: #0a0a0a;
+        }
+
+        .build-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .build-card {
+            background: var(--dark-card-alt);
+            padding: 2rem;
+            border-left: 3px solid var(--neon-yellow);
+            transition: all 0.4s;
+            position: relative;
+        }
+
+        .build-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, transparent 50%, rgba(252, 238, 10, 0.05) 50%);
+        }
+
+        .build-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .build-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .build-type {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            background: rgba(252, 238, 10, 0.1);
+            color: var(--neon-yellow);
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+        }
+
+        .build-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .build-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .build-stat {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+
+        /* ========== Gallery ========== */
+        #gallery {
+            background: linear-gradient(180deg, #0d0d18, #0a0a0a);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .gallery-item {
+            aspect-ratio: 16/10;
+            background: var(--dark-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .gallery-item:hover img { transform: scale(1.1); }
+
+        .gallery-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+            transition: opacity 0.4s;
+        }
+
+        .gallery-item:hover::before { opacity: 0; }
+
+        .gallery-item .gallery-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(0deg, rgba(0,0,0,0.8), transparent);
+            color: #fff;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            z-index: 2;
+            transform: translateY(100%);
+            transition: transform 0.4s;
+        }
+
+        .gallery-item:hover .gallery-label { transform: translateY(0); }
+
+        /* ========== Footer ========== */
+        footer {
+            background: #050510;
+            padding: 4rem 2rem 2rem;
+            border-top: 1px solid rgba(252, 238, 10, 0.1);
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--neon-yellow), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            max-width: 500px;
+            margin: 0 auto 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover { color: var(--neon-yellow); }
+
+        .footer-divider {
+            width: 60px;
+            height: 1px;
+            background: rgba(252, 238, 10, 0.3);
+            margin: 0 auto 2rem;
+        }
+
+        .copyright {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        /* ========== Typewriter Cursor ========== */
+        .cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+            color: var(--neon-yellow);
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* ========== Neon Divider ========== */
+        .neon-divider {
+            width: 100px;
+            height: 2px;
+            background: var(--neon-yellow);
+            box-shadow: 0 0 15px var(--neon-yellow), 0 0 30px rgba(252, 238, 10, 0.5);
+            margin: 0 0 2rem;
+        }
+
+        /* ========== Fade-in Animation ========== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 768px) {
+            section { padding: 4rem 1rem; }
+
+            .nav-links {
+                position: fixed;
+                top: 0; right: -100%;
+                width: 70%; height: 100vh;
+                background: rgba(10, 10, 10, 0.98);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: right 0.4s;
+                backdrop-filter: blur(20px);
+            }
+
+            .nav-links.active { right: 0; }
+
+            .menu-toggle { display: flex; }
+
+            .intro-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .stats-bar { gap: 2rem; }
+            .stat-number { font-size: 1.8rem; }
+
+            .gallery-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ========== Glitch text on hover ========== */
+        .glitch-hover {
+            position: relative;
+        }
+        .glitch-hover:hover {
+            animation: glitchAnim 0.3s ease;
+        }
+        @keyframes glitchAnim {
+            0% { transform: translate(2px, -1px); }
+            25% { transform: translate(-2px, 1px); }
+            50% { transform: translate(-1px, -2px); }
+            75% { transform: translate(1px, 2px); }
+            100% { transform: translate(0, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== Navigation ==================== -->
+    <nav id="navbar">
+        <div class="nav-inner">
+            <div class="nav-logo glitch-hover">CYBERPUNK 2077</div>
+            <div class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" onclick="closeMenu()">首页</a></li>
+                <li><a href="#background" onclick="closeMenu()">背景</a></li>
+                <li><a href="#game-intro" onclick="closeMenu()">游戏介绍</a></li>
+                <li><a href="#lifepaths" onclick="closeMenu()">出身</a></li>
+                <li><a href="#guide" onclick="closeMenu()">攻略</a></li>
+                <li><a href="#builds" onclick="closeMenu()">流派</a></li>
+                <li><a href="#gallery" onclick="closeMenu()">画廊</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ==================== Hero Section ==================== -->
+    <section class="hero" id="home">
+        <div class="hero-bg-grid"></div>
+        <div class="hero-content">
+            <div class="hero-badge">CD PROJEKT RED 出品</div>
+            <h1 class="hero-title">
+                <span class="cyber glitch-wrapper">CYBERPUNK</span>
+                <span class="punk glitch-wrapper">2077</span>
+            </h1>
+            <p class="hero-subtitle cursor" id="typewriter">
+                欢迎来到夜之城 —— 一个由科技、暴力和梦想交织的未来世界
+            </p>
+            <a href="#background" class="hero-cta">探索夜之城</a>
+        </div>
+        <div class="scroll-indicator">
+            <span>向下滚动</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- ==================== Stats Bar ==================== -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-number" data-target="2500">0</div>
+            <div class="stat-label">万+ 全球销量</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" data-target="6">0</div>
+            <div class="stat-label">大城区</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" data-target="3">0</div>
+            <div class="stat-label">出身选择</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" data-target="100">0</div>
+            <div class="stat-label">小时+ 游戏时长</div>
+        </div>
+    </div>
+
+    <!-- ==================== Background Section ==================== -->
+    <section id="background">
+        <div class="container">
+            <span class="section-label">世界观</span>
+            <h2 class="section-title">欢迎来到夜之城</h2>
+            <div class="neon-divider"></div>
+            <p class="section-desc">
+                2077年，美国经历了经济崩溃，国家力量被巨型企业取代。夜之城——这座位于北加利福尼亚自由州的超级大都市，成为了世界上最暴力、最危险，也最充满机遇的地方。
+            </p>
+            <div class="about-grid">
+                <div class="about-card fade-in">
+                    <div class="about-card-icon">🏙️</div>
+                    <h3>夜之城</h3>
+                    <p>
+                        坐落于洛杉矶与旧金山之间的莫罗湾地区，夜之城是一座由企业统治的反乌托邦超级都市。
+                        六大核心城区——沃森、威斯布鲁克、市中心、海伍德、圣多明戈和帕西菲卡——各具特色，
+                        从富丽堂皇的企业广场到帮派横行的贫民窟，贫富差距在这里被无限放大。
+                    </p>
+                </div>
+                <div class="about-card fade-in">
+                    <div class="about-card-icon">🏢</div>
+                    <h3>企业统治</h3>
+                    <p>
+                        在夜之城，巨型企业就是法律。荒坂、军用科技、康陶等超级企业从摩天大楼顶端掌控一切，
+                        经营着武器、机器人技术、赛博义体、制药和生物科技。企业代理人凌驾于法律之上，
+                        而普通市民只能在它们的阴影下求生。
+                    </p>
+                </div>
+                <div class="about-card fade-in">
+                    <div class="about-card-icon">💀</div>
+                    <h3>街头法则</h3>
+                    <p>
+                        毒品交易、帮派火并、非法超梦体验……夜之城的街头由暴力与混沌主宰。
+                        虎爪帮、漩涡帮、动物帮、巫毒男孩等帮派遍布全城，每个街区都有它自己的规则。
+                        在这里，要么成为传奇，要么默默无闻地死在某个小巷里。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Game Introduction ==================== -->
+    <section id="game-intro">
+        <div class="container">
+            <span class="section-label">游戏介绍</span>
+            <h2 class="section-title">扮演V，改写命运</h2>
+            <div class="neon-divider"></div>
+            <div class="intro-grid">
+                <div class="intro-image fade-in">
+                    <img src="https://www.cyberpunk.net/build/images/social-thumbnail-zh-cn-ddcb15fb.jpg"
+                         alt="Cyberpunk 2077 V"
+                         onerror="this.parentElement.innerHTML='<div style=\'text-align:center;color:var(--neon-cyan);padding:2rem;font-size:1.2rem;\'>🌆<br><br>夜之城全景<br><span style=\'font-size:0.8rem;color:var(--text-secondary);\'>CYBERPUNK 2077</span></div>'">
+                    <div class="corner tl"></div>
+                    <div class="corner tr"></div>
+                    <div class="corner bl"></div>
+                    <div class="corner br"></div>
+                </div>
+                <div class="intro-text fade-in">
+                    <h3>一款<span class="highlight">开放世界动作冒险角色扮演</span>游戏</h3>
+                    <p>
+                        《赛博朋克2077》由 <span class="highlight">CD Projekt RED</span> 开发发行，
+                        基于迈克·庞德史密斯经典桌游《赛博朋克2020》的世界观。游戏于2020年12月10日正式发售。
+                    </p>
+                    <p>
+                        你将扮演 <span class="highlight">V</span>——一名在夜之城崭露头角的雇佣兵。
+                        在一次看似普通的委托中，你卷入了涉及荒坂公司的巨大阴谋，
+                        一枚名为<span class="highlight">"圣物"</span>的生物芯片将你与已故传奇摇滚巨星、
+                        恐怖分子<span class="highlight">强尼·银手</span>（基努·里维斯饰）的命运绑定在了一起。
+                    </p>
+                    <p>
+                        随着芯片纳米技术逐渐覆盖你的意识，你只有几周时间找到分离两人的方法并存活下去。
+                        在这个充满选择与后果的世界里，你的每一个决定都将影响故事的走向。
+                    </p>
+                    <div class="tag-list">
+                        <span class="tag">开放世界</span>
+                        <span class="tag">第一人称RPG</span>
+                        <span class="tag">多线叙事</span>
+                        <span class="tag">赛博义体</span>
+                        <span class="tag">分支结局</span>
+                        <span class="tag">中文配音</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Lifepaths ==================== -->
+    <section id="lifepaths">
+        <div class="container">
+            <span class="section-label">角色创建</span>
+            <h2 class="section-title">三种出身，三种人生</h2>
+            <div class="neon-divider"></div>
+            <p class="section-desc">
+                在《赛博朋克2077》中，你可以选择V的出身背景。虽然不会改变主线结局，但不同的出身会带来独特的对话选项、
+                不同的序章体验，以及NPC对V的不同态度。
+            </p>
+            <div class="lifepath-grid">
+                <div class="lifepath-card nomad fade-in">
+                    <div class="lifepath-icon">🏜️</div>
+                    <h3>流浪者</h3>
+                    <div class="lifepath-tagline">来自废土的 outsider</div>
+                    <p>
+                        你来自夜之城外的荒原（Badlands）。作为流浪者家族的一员，你熟知汽车引擎的每一声轰鸣，
+                        懂得在废土上生存的法则。你带着对自由和新生活的渴望来到夜之城，但城市的高墙远比沙漠更加残酷。
+                        你拥有与荒原居民打交道的独特优势，并且在车辆驾驶方面经验丰富。
+                    </p>
+                </div>
+                <div class="lifepath-card streetkid fade-in">
+                    <div class="lifepath-icon">🌃</div>
+                    <h3>街头小子</h3>
+                    <div class="lifepath-tagline">夜之城土生土长的生存者</div>
+                    <p>
+                        你从小就混迹于夜之城的街头巷尾，熟悉每一条暗巷的规则。你了解帮派运作的方式，
+                        知道哪个街区属于谁的地盘，也懂得如何用街头智慧化解危机。
+                        你与其他街头人物有天然的默契，这让你在黑市交易和帮派周旋中如鱼得水。
+                    </p>
+                </div>
+                <div class="lifepath-card corpo fade-in">
+                    <div class="lifepath-icon">💼</div>
+                    <h3>公司员工</h3>
+                    <div class="lifepath-tagline">从企业高层跌落的权力玩家</div>
+                    <p>
+                        你曾是荒坂公司反情报部门的一员，熟悉企业政治的暗流涌动。
+                        你精通谈判、威胁与操控，懂得如何利用信息差获取优势。
+                        在一场内斗中被剥夺一切后，你被迫从摩天大楼的顶端跌落街头，
+                        但你在企业界的知识与人脉仍然是你最大的武器。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Guide Section ==================== -->
+    <section id="guide">
+        <div class="container">
+            <span class="section-label">游戏攻略</span>
+            <h2 class="section-title">新手指南 & 进阶技巧</h2>
+            <div class="neon-divider"></div>
+            <p class="section-desc">
+                无论你是第一次踏入夜之城的新人，还是重返街头的老兵，这些技巧都能帮助你更好地生存下去。
+            </p>
+            <div class="guide-grid">
+                <div class="guide-card fade-in">
+                    <div class="guide-card-header">
+                        <div class="guide-card-num">01</div>
+                        <h3>不要急于推进主线</h3>
+                    </div>
+                    <p>
+                        支线任务、NCPD警情通报和中间人委托不仅是赚钱和获取装备的好方法，
+                        还会让你更深入地了解夜之城的世界与角色。主线任务给的经验最多，
+                        但平衡主线与支线的节奏会让游戏体验更为丰富。
+                    </p>
+                </div>
+                <div class="guide-card fade-in">
+                    <div class="guide-card-header">
+                        <div class="guide-card-num">02</div>
+                        <h3>善用扫描器</h3>
+                    </div>
+                    <p>
+                        扫描器是你最重要的工具之一。它能标记敌人、揭示弱点、发现地雷和炮塔、
+                        高亮可拾取的物品，还能在战斗前规划潜行路线。养成每到一个新区域就先扫描的好习惯。
+                    </p>
+                </div>
+                <div class="guide-card fade-in">
+                    <div class="guide-card-header">
+                        <div class="guide-card-num">03</div>
+                        <h3>勤用快速存档</h3>
+                    </div>
+                    <p>
+                        不要完全依赖自动存档。游戏可能会出现意外崩溃，养成按F5快速存档的习惯可以避免进度丢失。
+                        在关键对话和战斗前手动存档，也能让你尝试不同的选择和打法。
+                    </p>
+                </div>
+                <div class="guide-card fade-in">
+                    <div class="guide-card-header">
+                        <div class="guide-card-num">04</div>
+                        <h3>对付敌方网络黑客</h3>
+                    </div>
+                    <p>
+                        当屏幕上方出现红色进度条时，说明有敌方黑客正在入侵你。
+                        开启扫描器找到黄色的追踪线路，利用监控摄像头定位他们，
+                        然后用短路等快速破解解决掉他们——或者用技术武器穿墙击杀。
+                    </p>
+                </div>
+                <div class="guide-card fade-in">
+                    <div class="guide-card-header">
+                        <div class="guide-card-num">05</div>
+                        <h3>属性点不可随意重置</h3>
+                    </div>
+                    <p>
+                        技能点可以随时免费重置，但<span class="highlight">属性点只能重置一次</span>。
+                        在投入属性点之前，请仔细考虑你的游玩风格。
+                        肉体、反应、技术能力、智力和镇定五大属性决定了你能装备的义体和使用的技能。
+                    </p>
+                </div>
+                <div class="guide-card fade-in">
+                    <div class="guide-card-header">
+                        <div class="guide-card-num">06</div>
+                        <h3>探索"大抢劫"任务区域</h3>
+                    </div>
+                    <p>
+                        在"大抢劫"（The Heist）任务中，离开顶层公寓之前一定要彻底搜索。
+                        这里藏有极易错过的标志性物品：<span class="highlight">觉</span>武士刀、
+                        <span class="highlight">涅槃</span>匕首、<span class="highlight">金刚</span>手枪、
+                        独特服装以及一颗独一无二的<span class="highlight">鬣蜥蛋</span>。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Builds Section ==================== -->
+    <section id="builds">
+        <div class="container">
+            <span class="section-label">角色流派</span>
+            <h2 class="section-title">强力BD推荐</h2>
+            <div class="neon-divider"></div>
+            <p class="section-desc">
+                从潜行黑客到狂暴战士，《赛博朋克2077》提供了丰富的角色构筑可能。
+                以下是当前版本（2.3+）中备受推崇的几种流派。
+            </p>
+            <div class="build-grid">
+                <div class="build-card fade-in">
+                    <h3>🖥️ 纯网络黑客</h3>
+                    <span class="build-type">智力 / 镇定</span>
+                    <p>
+                        以快速破解为主要输出手段的终极法术流派。利用"过载"技能突破RAM上限，
+                        在同一时间内上传多种破解程序，从远处让敌人短路、过热、系统重置。
+                        搭配摄像头控制，你可以清空整栋楼的敌人而不被发现。
+                    </p>
+                    <div class="build-stats">
+                        <span class="build-stat">智力 20</span>
+                        <span class="build-stat">镇定 20</span>
+                        <span class="build-stat">技术 20</span>
+                    </div>
+                </div>
+                <div class="build-card fade-in">
+                    <h3>⚔️ 反应武士</h3>
+                    <span class="build-type">反应 / 肉体</span>
+                    <p>
+                        以武士刀为核心，搭配斯安威斯坦（Sandevistan）操作系统实现子弹时间的近战流派。
+                        冲刺技能让你在战斗中灵活位移，强化肌腱实现二段跳，空中冲刺组合让你成为真正的赛博忍者。
+                    </p>
+                    <div class="build-stats">
+                        <span class="build-stat">反应 20</span>
+                        <span class="build-stat">肉体 20</span>
+                        <span class="build-stat">镇定 18</span>
+                    </div>
+                </div>
+                <div class="build-card fade-in">
+                    <h3>🔫 潜行枪手</h3>
+                    <span class="build-type">镇定 / 反应</span>
+                    <p>
+                        使用消音手枪结合光学迷彩的暗杀流派。专注爆头伤害加成，
+                        配合光学迷彩实现隐身击杀。一把好的消音手枪在手，你就是夜之城最危险的幽灵杀手。
+                    </p>
+                    <div class="build-stats">
+                        <span class="build-stat">镇定 20</span>
+                        <span class="build-stat">反应 20</span>
+                        <span class="build-stat">智力 16</span>
+                    </div>
+                </div>
+                <div class="build-card fade-in">
+                    <h3>💪 狂暴战士</h3>
+                    <span class="build-type">肉体 / 技术能力</span>
+                    <p>
+                        使用大猩猩手臂和狂暴操作系统正面硬刚的近战坦克流派。
+                        超高生存能力和近战伤害加成让你在拳击任务中势不可挡。
+                        大猩猩手臂还提供+6肉体加成用于属性检定，轻松通过任何力量门槛。
+                    </p>
+                    <div class="build-stats">
+                        <span class="build-stat">肉体 20</span>
+                        <span class="build-stat">技术 20</span>
+                        <span class="build-stat">反应 18</span>
+                    </div>
+                </div>
+                <div class="build-card fade-in">
+                    <h3>🔌 震撼科技兵</h3>
+                    <span class="build-type">技术能力 / 肉体</span>
+                    <p>
+                        使用科技霰弹枪配合连锁闪电效果的混合流派。充能射击可以穿墙击杀敌人，
+                        连锁闪电效果让每一次射击都能波及周围目标。是后期最暴力的AOE流派之一。
+                    </p>
+                    <div class="build-stats">
+                        <span class="build-stat">技术 20</span>
+                        <span class="build-stat">肉体 20</span>
+                        <span class="build-stat">反应 18</span>
+                    </div>
+                </div>
+                <div class="build-card fade-in">
+                    <h3>🎯 智能武器专家</h3>
+                    <span class="build-type">智力 / 反应</span>
+                    <p>
+                        使用智能冲锋枪和快速破解的混合流派。智能武器自动追踪目标，
+                        结合网络破解削弱敌人防御，让你在中距离战斗中占据绝对优势。
+                    </p>
+                    <div class="build-stats">
+                        <span class="build-stat">智力 20</span>
+                        <span class="build-stat">反应 20</span>
+                        <span class="build-stat">肉体 16</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Gallery Section ==================== -->
+    <section id="gallery">
+        <div class="container">
+            <span class="section-label">视觉盛宴</span>
+            <h2 class="section-title">夜之城掠影</h2>
+            <div class="neon-divider"></div>
+            <div class="gallery-grid">
+                <div class="gallery-item fade-in">
+                    <img src="https://www.cyberpunk.net/build/images/pre3builts/bg1-b0f6deb4.jpg"
+                         alt="Night City street view"
+                         onerror="this.parentElement.innerHTML='<div style=\'text-align:center;color:var(--neon-yellow);padding:2rem;\'>🌃<br><span style=\'font-size:0.8rem;\'>夜之城街景</span></div>'">
+                    <div class="gallery-label">夜之城街头 —— 霓虹与黑暗交错</div>
+                </div>
+                <div class="gallery-item fade-in">
+                    <img src="https://www.cyberpunk.net/build/images/pre3builts/bg2-59b6c7c8.jpg"
+                         alt="Cyberpunk combat scene"
+                         onerror="this.parentElement.innerHTML='<div style=\'text-align:center;color:var(--neon-magenta);padding:2rem;\'>⚔️<br><span style=\'font-size:0.8rem;\'>战斗场景</span></div>'">
+                    <div class="gallery-label">激烈交火 —— 在夜之城存活下去</div>
+                </div>
+                <div class="gallery-item fade-in">
+                    <img src="https://www.cyberpunk.net/build/images/pre3builts/bg3-51e0faa0.jpg"
+                         alt="Night City skyline"
+                         onerror="this.parentElement.innerHTML='<div style=\'text-align:center;color:var(--neon-cyan);padding:2rem;\'>🏙️<br><span style=\'font-size:0.8rem;\'>城市天际线</span></div>'">
+                    <div class="gallery-label">企业广场 —— 权力之巅</div>
+                </div>
+                <div class="gallery-item fade-in">
+                    <img src="https://www.cyberpunk.net/build/images/pre3builts/bg4-27f67e20.jpg"
+                         alt="Cyberpunk character art"
+                         onerror="this.parentElement.innerHTML='<div style=\'text-align:center;color:var(--neon-purple);padding:2rem;\'>🎸<br><span style=\'font-size:0.8rem;\'>强尼·银手</span></div>'">
+                    <div class="gallery-label">强尼·银手 —— 摇滚传奇永不死</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Footer ==================== -->
+    <footer>
+        <div class="footer-logo glitch-hover">CYBERPUNK 2077</div>
+        <p class="footer-text">
+            在夜之城，每个人都在追逐自己的传奇。无论是闪耀的企业广场，还是阴暗的后街小巷，
+            每一个角落都藏着等待被发现的故事。
+        </p>
+        <div class="footer-divider"></div>
+        <ul class="footer-links">
+            <li><a href="https://www.cyberpunk.net" target="_blank" rel="noopener">官方网站</a></li>
+            <li><a href="https://store.steampowered.com/app/1091500/Cyberpunk_2077/" target="_blank" rel="noopener">Steam</a></li>
+            <li><a href="https://www.cdprojekt.com" target="_blank" rel="noopener">CD PROJEKT RED</a></li>
+            <li><a href="#home">回到顶部</a></li>
+        </ul>
+        <p class="copyright">© 2026 CYBERPUNK 2077 Fan Page | CD PROJEKT®, Cyberpunk® are registered trademarks of CD PROJEKT S.A.</p>
+    </footer>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ===== Navbar scroll effect =====
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // ===== Mobile menu toggle =====
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        function closeMenu() {
+            navLinks.classList.remove('active');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+                navLinks.classList.remove('active');
+            }
+        });
+
+        // ===== Typewriter effect =====
+        const typewriterTexts = [
+            '欢迎来到夜之城 —— 一个由科技、暴力和梦想交织的未来世界',
+            '在这里，要么成为传奇，要么默默无闻地死去',
+            '没有活着的传奇，只有被记住的死人',
+            '"Wake the fuck up, Samurai. We have a city to burn."',
+        ];
+
+        let textIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let isWaiting = false;
+        const typewriterEl = document.getElementById('typewriter');
+
+        function typeWriter() {
+            if (isWaiting) return;
+
+            const currentText = typewriterTexts[textIndex];
+
+            if (!isDeleting) {
+                typewriterEl.textContent = currentText.substring(0, charIndex + 1);
+                charIndex++;
+
+                if (charIndex === currentText.length) {
+                    isWaiting = true;
+                    setTimeout(() => {
+                        isWaiting = false;
+                        isDeleting = true;
+                        typeWriter();
+                    }, 2500);
+                    return;
+                }
+            } else {
+                typewriterEl.textContent = currentText.substring(0, charIndex - 1);
+                charIndex--;
+
+                if (charIndex === 0) {
+                    isDeleting = false;
+                    textIndex = (textIndex + 1) % typewriterTexts.length;
+                }
+            }
+
+            const speed = isDeleting ? 30 : 70;
+            setTimeout(typeWriter, speed);
+        }
+
+        // Start typewriter after a delay
+        setTimeout(() => {
+            typewriterEl.classList.add('cursor');
+            typeWriter();
+        }, 500);
+
+        // ===== Scroll animations (Intersection Observer) =====
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -50px 0px',
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach((el) => {
+            observer.observe(el);
+        });
+
+        // ===== Counter animation for stats =====
+        function animateCounter(el, target, suffix = '') {
+            const duration = 2000;
+            const start = 0;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Ease out cubic
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(eased * target);
+
+                if (suffix === '万+ 全球销量') {
+                    el.textContent = current + '万+';
+                } else if (suffix === '小时+ 游戏时长') {
+                    el.textContent = current + '+';
+                } else {
+                    el.textContent = current;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    if (suffix === '万+ 全球销量') el.textContent = '2500万+';
+                    else if (suffix === '小时+ 游戏时长') el.textContent = '100+';
+                    else el.textContent = target;
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Observe stats bar and trigger counter animation
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const statNumbers = entry.target.querySelectorAll('.stat-number');
+                    const statLabels = entry.target.querySelectorAll('.stat-label');
+
+                    // Map labels to targets
+                    const targets = {
+                        '万+ 全球销量': 2500,
+                        '大城区': 6,
+                        '出身选择': 3,
+                        '小时+ 游戏时长': 100,
+                    };
+
+                    statNumbers.forEach((numEl, i) => {
+                        const label = statLabels[i]?.textContent || '';
+                        animateCounter(numEl, targets[label] || 0, label);
+                    });
+
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const statsBar = document.querySelector('.stats-bar');
+        if (statsBar) statsObserver.observe(statsBar);
+
+        // ===== Parallax effect on hero grid =====
+        const heroGrid = document.querySelector('.hero-bg-grid');
+        window.addEventListener('mousemove', (e) => {
+            if (!heroGrid) return;
+            const x = (e.clientX / window.innerWidth - 0.5) * 20;
+            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+            heroGrid.style.transform = `perspective(500px) rotateX(${-y * 0.15}deg) rotateY(${x * 0.15}deg)`;
+        });
+
+        // ===== Smooth scroll for all anchor links =====
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offsetTop = target.offsetTop - 70;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth',
+                    });
+                }
+            });
+        });
+
+        // ===== Keyboard shortcut for back to top =====
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        // ===== Console easter egg =====
+        console.log(`
+        %c
+        ╔══════════════════════════════════════╗
+        ║   CYBERPUNK 2077 FAN PAGE          ║
+        ║   "Never Fade Away"                ║
+        ║   Wake up, Samurai.                ║
+        ╚══════════════════════════════════════╝
+        %c
+        `, 'color: #fcee0a; font-family: monospace;', 'color: #00f0ff;');
+
+        console.log('%c💀 你发现了隐藏彩蛋 —— 欢迎加入赛博朋克的世界 %c', 'color: #ff0055; font-size: 14px;', '');
+    </script>
+</body>
+</html>
