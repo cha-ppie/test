@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画廊 — CYBERPUNK 2077</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tomorrow:wght@300;400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/cyberpunk.css">
+    <style>
+        .page-hero{background:radial-gradient(ellipse at 50% 40%,rgba(252,238,9,.06),transparent 60%),radial-gradient(ellipse at 20% 70%,rgba(255,0,60,.04),transparent 50%),var(--black)}
+        .gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
+        .gallery-item{aspect-ratio:16/10;background:var(--dark-grey);overflow:hidden;position:relative;cursor:pointer;clip-path:polygon(0 20px,20px 0,100% 0,100% 100%,0 100%,0 calc(100% - 20px))}
+        .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .6s,filter .6s;filter:brightness(.7)}
+        .gallery-item:hover img{transform:scale(1.1);filter:brightness(1.05)}
+        .gallery-item .g-label{position:absolute;bottom:0;left:0;right:0;padding:2rem 1.2rem 1.2rem;background:linear-gradient(0deg,rgba(5,10,14,.95),transparent);font-family:var(--font-ui);font-size:.75rem;font-weight:600;letter-spacing:1px;color:var(--yellow);z-index:2;transform:translateY(100%);transition:transform .4s;text-transform:uppercase}
+        .gallery-item:hover .g-label{transform:translateY(0)}
+        .gallery-item::after{content:'';position:absolute;top:10px;right:10px;width:10px;height:10px;border:1px solid rgba(252,238,9,.4);z-index:2;clip-path:polygon(0 0,100% 0,100% 100%)}
+        .terminal-block{max-width:700px;margin:0 auto}
+    </style>
+</head>
+<body>
+    <canvas id="fragmentCanvas"></canvas><div class="glitch-blocks" id="glitchBlocks"></div>
+    <div class="rgb-bar" style="top:20%;left:0;width:100%;background:linear-gradient(90deg,transparent,rgba(252,238,9,.15) 30%,rgba(0,240,255,.15) 70%,transparent)"></div>
+    <div class="noise-overlay"></div>
+    <div class="music-player"><span class="music-label">AMBIENT</span><button class="music-btn" id="musicBtn"><span class="icon">♪</span></button></div>
+
+    <nav class="nav" id="nav"><div class="nav-inner">
+        <a href="index.html" class="nav-logo">CYBERPUNK 2077</a>
+        <div class="menu-toggle" id="menuBtn"><span></span><span></span><span></span></div>
+        <ul class="nav-links" id="navMenu">
+            <li><a href="index.html">首页</a></li><li><a href="world.html">世界观</a></li><li><a href="game.html">游戏系统</a></li><li><a href="guide.html">攻略流派</a></li><li><a href="edgerunners.html">边缘行者</a></li><li><a href="gallery.html">画廊</a></li>
+        </ul>
+    </div></nav>
+
+    <section class="page-hero">
+        <div class="page-subtitle">VISUAL ARCHIVE</div>
+        <h1 class="glitch" data-text="夜之城掠影" style="font-size:clamp(2.5rem,7vw,5rem)">夜之城掠影</h1>
+        <p style="color:var(--grey);max-width:600px;margin:2rem auto 0;font-size:.95rem">光与影的交错，霓虹与黑暗的碰撞。世界上最美丽的噩梦。</p>
+    </section>
+
+    <section class="section bg-alt">
+        <div class="container">
+            <div class="gallery-grid">
+                <div class="gallery-item reveal">
+                    <img src="images/characters/画廊.jpg" alt="夜之城" onerror="this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column><div style=font-size:3rem>🌃</div><div style=font-family:var(--font-tech);color:var(--yellow);letter-spacing:2px>夜之城</div></div>'">
+                    <div class="g-label">夜之城 —— 霓虹与黑暗的碰撞</div>
+                </div>
+                <div class="gallery-item reveal">
+                    <img src="images/characters/画廊 (2).jpg" alt="赛博朋克" onerror="this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column><div style=font-size:3rem>⚔️</div><div style=font-family:var(--font-tech);color:var(--red);letter-spacing:2px>赛博朋克</div></div>'">
+                    <div class="g-label">科技与暴力的未来世界</div>
+                </div>
+                <div class="gallery-item reveal">
+                    <img src="images/characters/画廊 (3).jpg" alt="城市光影" onerror="this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column><div style=font-size:3rem>🏙️</div><div style=font-family:var(--font-tech);color:var(--cyan);letter-spacing:2px>城市光影</div></div>'">
+                    <div class="g-label">企业广场 —— 权力之巅</div>
+                </div>
+                <div class="gallery-item reveal">
+                    <img src="images/characters/V.jpg" alt="V" onerror="this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column><div style=font-size:3rem>🎮</div><div style=font-family:var(--font-tech);color:var(--yellow);letter-spacing:2px>V</div></div>'">
+                    <div class="g-label">V —— 夜之城的传奇正在书写</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Terminal easter egg -->
+    <section class="section bg-dark">
+        <div class="container"><div class="terminal-block"><div class="terminal reveal">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="term-title">NIGHT_CITY_ARCHIVE // ACCESS_LEVEL: PUBLIC</div>
+            <div class="term-content">
+                <div><span class="prompt">guest@nightcity-net:~$</span> <span class="cmd">cat /var/log/legends.txt</span></div>
+                <div class="output" style="margin-top:8px">> 正在访问夜之城传奇数据库……</div>
+                <div class="output">> ========================================</div>
+                <div class="output">> [LEGEND-001] Johnny Silverhand — Status: DECEASED (2023)</div>
+                <div class="output">> [LEGEND-002] Morgan Blackhand — Status: UNKNOWN</div>
+                <div class="output">> [LEGEND-003] Rogue Amendiares — Status: ACTIVE (Afterlife)</div>
+                <div class="output">> [LEGEND-004] Adam Smasher — Status: ACTIVE (Arasaka)</div>
+                <div class="output">> [LEGEND-005] David Martinez — Status: DECEASED (2076)</div>
+                <div class="output">> [LEGEND-006] <span style="color:var(--yellow)">V (Mercenary)</span> — Status: <span style="color:var(--cyan)">RISING</span></div>
+                <div class="output">> ========================================</div>
+                <div class="output">> "Never Fade Away" — Samurai, 2023</div>
+                <div class="output">> "没有活着的传奇，只有被记住的死人。"</div>
+                <div style="margin-top:8px"><span class="prompt">guest@nightcity-net:~$</span> <span class="cursor-anim"></span></div>
+            </div>
+        </div></div></div>
+    </section>
+
+    <footer class="footer"><div class="footer-logo">CYBERPUNK 2077</div><p class="footer-desc">Wake up, Samurai. We have a city to burn.</p><ul class="footer-links"><li><a href="index.html">首页</a></li><li><a href="https://www.cyberpunk.net" target="_blank" rel="noopener">官方网站</a></li><li><a href="https://store.steampowered.com/app/1091500/Cyberpunk_2077/" target="_blank" rel="noopener">Steam</a></li></ul><div class="footer-div"></div><p class="copyright">© 2026 CYBERPUNK 2077 Fan Page</p></footer>
+    <script src="js/cyberpunk.js"></script>
+</body>
+</html>

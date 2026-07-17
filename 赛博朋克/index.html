@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBERPUNK 2077 — 夜之城</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tomorrow:wght@300;400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/cyberpunk.css">
+    <style>
+        .hero{position:relative;min-height:100vh;display:flex;align-items:center;background:var(--black);overflow:hidden}
+        .hero-backlight{position:absolute;pointer-events:none;z-index:4;right:8%;bottom:12%;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(252,238,9,.16) 0%,rgba(0,240,255,.07) 35%,transparent 65%);filter:blur(70px);animation:blPulse 5s ease-in-out infinite}
+        @keyframes blPulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+        .hero-char{position:absolute;pointer-events:none;z-index:5;right:3%;bottom:0;width:46%;height:96%;background-repeat:no-repeat;background-size:contain;background-position:right bottom;mix-blend-mode:lighten;filter:drop-shadow(0 0 45px rgba(252,238,9,.22)) drop-shadow(0 0 90px rgba(0,240,255,.1)) brightness(1.15) contrast(1.1);animation:heroFloat 7s ease-in-out infinite;opacity:0;transition:opacity 1.5s ease}
+        .hero-char.loaded{opacity:1}
+        @keyframes heroFloat{0%,100%{transform:translateY(0)translateX(0)}33%{transform:translateY(-20px)translateX(4px)}66%{transform:translateY(-6px)translateX(-6px)}}
+        .hero-content{position:relative;z-index:10;padding:4rem;max-width:600px}
+        .hero-content .pre-title{font-family:var(--font-ui);font-size:.7rem;letter-spacing:5px;color:var(--cyan);text-transform:uppercase;margin-bottom:1.5rem;text-shadow:0 0 10px rgba(0,240,255,.4)}
+        .hero-subtitle{font-family:var(--font-ui);font-size:1.05rem;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;margin-top:1.5rem;text-shadow:0 0 8px rgba(0,240,255,.4);min-height:1.6em}
+        .hero-subtitle .cursor-bar{display:inline-block;width:2px;height:1em;background:var(--cyan);margin-left:4px;vertical-align:text-bottom;animation:cb .8s step-end infinite}
+        @keyframes cb{50%{opacity:0}}
+        .hero-corners{position:absolute;inset:0;pointer-events:none;z-index:8}
+        .hero-corner{position:absolute;width:55px;height:55px;border-color:rgba(252,238,9,.25);border-style:solid}
+        .hero-corner.tl{top:30px;left:30px;border-width:1px 0 0 1px}.hero-corner.tr{top:30px;right:30px;border-width:1px 1px 0 0}.hero-corner.bl{bottom:30px;left:30px;border-width:0 0 1px 1px}
+        .scroll-hint{position:absolute;bottom:3rem;left:4rem;display:flex;flex-direction:column;align-items:flex-start;gap:8px;z-index:10}
+        .scroll-hint span{font-family:var(--font-ui);font-size:.6rem;letter-spacing:3px;color:var(--grey);text-transform:uppercase}
+        .scroll-hint .line{width:1px;height:36px;background:linear-gradient(180deg,var(--yellow),transparent);animation:sp 2s ease-in-out infinite}
+        @keyframes sp{0%,100%{opacity:.3;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.4)}}
+
+        .nav-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-top:2rem}
+        .nav-card{background:var(--dark-grey);clip-path:polygon(0 20px,20px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px));padding:2rem;text-align:center;text-decoration:none;transition:.4s;display:block;color:var(--white);border:1px solid rgba(255,255,255,.04)}
+        .nav-card:hover{background:#1e2532;border-color:rgba(252,238,9,.2);transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+        .nav-card .nc-icon{font-size:2.5rem;margin-bottom:.8rem}
+        .nav-card h3{font-family:var(--font-tech);font-size:1.1rem;font-weight:600;letter-spacing:2px;color:var(--yellow);text-transform:uppercase}
+        .nav-card p{color:var(--grey);font-size:.78rem;margin-top:.5rem}
+
+        @media(max-width:768px){.hero-content{padding:2rem 1.5rem}.hero-char{right:-8%;width:65%}.hero-backlight{right:0;width:300px;height:300px}.hero-corner{width:30px;height:30px}.hero-corner.tl{top:15px;left:15px}.hero-corner.tr{top:15px;right:15px}.hero-corner.bl{bottom:15px;left:15px}.scroll-hint{left:1.5rem}}
+    </style>
+</head>
+<body>
+    <!-- Background system -->
+    <canvas id="fragmentCanvas"></canvas>
+    <div class="glitch-blocks" id="glitchBlocks"></div>
+    <div class="rgb-bar" style="top:18%;left:0;width:100%;background:linear-gradient(90deg,transparent,rgba(252,238,9,.2) 40%,rgba(0,240,255,.2) 80%,transparent)"></div>
+    <div class="rgb-bar" style="top:75%;left:0;width:100%;background:linear-gradient(90deg,transparent,rgba(255,0,60,.15) 30%,rgba(252,238,9,.15) 70%,transparent);animation-delay:2.5s"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Music player -->
+    <div class="music-player">
+        <span class="music-label">AMBIENT SOUND</span>
+        <button class="music-btn" id="musicBtn"><span class="icon">♪</span></button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">CYBERPUNK 2077</a>
+            <div class="menu-toggle" id="menuBtn"><span></span><span></span><span></span></div>
+            <ul class="nav-links" id="navMenu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="world.html">世界观</a></li>
+                <li><a href="game.html">游戏系统</a></li>
+                <li><a href="guide.html">攻略流派</a></li>
+                <li><a href="edgerunners.html">边缘行者</a></li>
+                <li><a href="gallery.html">画廊</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="home">
+        <div class="hero-backlight"></div>
+        <!-- V 角色立绘 -->
+        <div class="hero-char loaded" id="heroChar"
+             style="background-image:url('images/characters/V.jpg');">
+        </div>
+        <div class="hero-corners">
+            <div class="hero-corner tl"></div><div class="hero-corner tr"></div><div class="hero-corner bl"></div>
+        </div>
+        <div class="hero-content">
+            <div class="pre-title">CD PROJEKT RED 出品</div>
+            <h1 class="glitch" data-text="CYBERPUNK" style="font-size:clamp(3.5rem,9vw,7.5rem)">CYBERPUNK</h1>
+            <div style="font-family:var(--font-tech);font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:8px;color:#fff;text-transform:uppercase;text-shadow:0 0 30px rgba(255,255,255,.08);margin-top:-.3em">2077</div>
+            <p class="hero-subtitle" id="typewriter"></p>
+            <a href="world.html" class="btn-cyber" style="margin-top:2.5rem"><span class="btn-bg"><span class="btn-inner">探索夜之城</span></span></a>
+        </div>
+        <div class="scroll-hint"><span>SCROLL</span><div class="line"></div></div>
+    </section>
+
+    <!-- Quick Nav -->
+    <section class="section bg-alt">
+        <div class="container">
+            <div class="sec-tag">内容导航</div>
+            <h2 class="sec-title">选择你的<span class="hl">目的地</span></h2>
+            <div class="nav-grid">
+                <a href="world.html" class="nav-card reveal"><div class="nc-icon">🏙️</div><h3>世界观</h3><p>夜之城的七大区域、巨型企业与街头帮派</p></a>
+                <a href="game.html" class="nav-card reveal"><div class="nc-icon">🎮</div><h3>游戏系统</h3><p>出身选择、赛博义体、属性技能与核心角色</p></a>
+                <a href="guide.html" class="nav-card reveal"><div class="nc-icon">📖</div><h3>攻略流派</h3><p>从新手入门到六种强力BD构筑</p></a>
+                <a href="edgerunners.html" class="nav-card reveal"><div class="nc-icon">🎬</div><h3>边缘行者</h3><p>动画第一季角色 & 第二季最新情报</p></a>
+                <a href="gallery.html" class="nav-card reveal"><div class="nc-icon">🖼️</div><h3>画廊</h3><p>夜之城视觉盛宴</p></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-logo">CYBERPUNK 2077</div>
+        <p class="footer-desc">在夜之城，每个人都在追逐自己的传奇。Wake up, Samurai.</p>
+        <ul class="footer-links">
+            <li><a href="https://www.cyberpunk.net" target="_blank" rel="noopener">官方网站</a></li>
+            <li><a href="https://store.steampowered.com/app/1091500/Cyberpunk_2077/" target="_blank" rel="noopener">Steam</a></li>
+            <li><a href="https://www.netflix.com/title/81054853" target="_blank" rel="noopener">Netflix</a></li>
+            <li><a href="index.html">首页</a></li>
+        </ul>
+        <div class="footer-div"></div>
+        <p class="copyright">© 2026 CYBERPUNK 2077 Fan Page | CD PROJEKT®, Cyberpunk® are registered trademarks of CD PROJEKT S.A.</p>
+    </footer>
+
+    <script src="js/cyberpunk.js"></script>
+    <script>
+        // Typewriter
+        const phrases=['Wake the fuck up, Samurai. We have a city to burn.','欢迎来到夜之城 —— 由科技、暴力和梦想交织的未来。','在这里，要么成为传奇，要么默默无闻地死去。','没有活着的传奇，只有被记住的死人。','I Really Want to Stay at Your House.','Never Fade Away.'];
+        const tw=document.getElementById('typewriter');let pi=0,ci=0,del=false,paused=false;
+        function type(){if(paused)return;const t=phrases[pi];if(!del){tw.innerHTML=t.substring(0,ci+1)+'<span class="cursor-bar"></span>';ci++;if(ci===t.length){paused=true;setTimeout(()=>{paused=false;del=true;type()},2800);return}}else{tw.innerHTML=t.substring(0,ci-1)+'<span class="cursor-bar"></span>';ci--;if(ci===0){del=false;pi=(pi+1)%phrases.length}}setTimeout(type,del?28:65)}
+        setTimeout(type,600);
+    </script>
+</body>
+</html>

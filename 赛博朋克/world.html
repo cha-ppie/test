@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界观 — CYBERPUNK 2077</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tomorrow:wght@300;400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/cyberpunk.css">
+    <style>
+        .page-hero{background:radial-gradient(ellipse at 50% 40%,rgba(252,238,9,.06),transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(0,240,255,.04),transparent 50%),var(--black)}
+        .district-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+        .district-card{background:var(--dark-grey);clip-path:polygon(0 20px,20px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px));padding:2rem;transition:.4s;cursor:default;border-top:3px solid var(--yellow)}
+        .district-card:hover{background:#1e2532;transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+        .district-card h4{font-family:var(--font-tech);font-size:1.1rem;font-weight:600;letter-spacing:2px;color:var(--yellow);text-transform:uppercase;margin-bottom:.5rem}
+        .district-card .d-loc{font-size:.65rem;letter-spacing:1px;color:var(--cyan);text-transform:uppercase;margin-bottom:.8rem}
+        .district-card p{color:var(--grey);font-size:.85rem;line-height:1.8}
+
+        .corp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+        .corp-card{background:var(--dark-grey);clip-path:polygon(0 16px,16px 0,100% 0,100% calc(100% - 0),calc(100% - 0) 100%,0 100%,0 calc(100% - 16px));padding:1.8rem;transition:.4s;cursor:default;border-left:3px solid var(--cyan)}
+        .corp-card:hover{background:#1e2532;transform:translateX(4px);box-shadow:0 0 30px rgba(0,240,255,.06)}
+        .corp-card h4{font-family:var(--font-tech);font-size:1.1rem;font-weight:600;letter-spacing:2px;color:#fff;text-transform:uppercase}
+        .corp-card p{color:var(--grey);font-size:.85rem;line-height:1.8;margin-top:.5rem}
+
+        .gang-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
+        .gang-tag{font-family:var(--font-ui);font-size:.6rem;letter-spacing:1px;padding:.3rem .8rem;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);color:var(--red);border:1px solid rgba(255,0,60,.25);transition:.3s;cursor:default}
+        .gang-tag:hover{background:rgba(255,0,60,.08);box-shadow:0 0 10px rgba(255,0,60,.2)}
+    </style>
+</head>
+<body>
+    <canvas id="fragmentCanvas"></canvas><div class="glitch-blocks" id="glitchBlocks"></div>
+    <div class="rgb-bar" style="top:22%;left:0;width:100%;background:linear-gradient(90deg,transparent,rgba(252,238,9,.15) 40%,rgba(0,240,255,.15) 80%,transparent)"></div>
+    <div class="noise-overlay"></div>
+    <div class="music-player"><span class="music-label">AMBIENT</span><button class="music-btn" id="musicBtn"><span class="icon">♪</span></button></div>
+
+    <nav class="nav" id="nav"><div class="nav-inner">
+        <a href="index.html" class="nav-logo">CYBERPUNK 2077</a>
+        <div class="menu-toggle" id="menuBtn"><span></span><span></span><span></span></div>
+        <ul class="nav-links" id="navMenu">
+            <li><a href="index.html">首页</a></li><li><a href="world.html">世界观</a></li><li><a href="game.html">游戏系统</a></li><li><a href="guide.html">攻略流派</a></li><li><a href="edgerunners.html">边缘行者</a></li><li><a href="gallery.html">画廊</a></li>
+        </ul>
+    </div></nav>
+
+    <section class="page-hero">
+        <div class="page-subtitle">THE WORLD OF</div>
+        <h1 class="glitch" data-text="NIGHT CITY" style="font-size:clamp(2.5rem,7vw,5rem)">NIGHT CITY</h1>
+        <p style="color:var(--grey);max-width:600px;margin:2rem auto 0;font-size:.95rem">2077年，美国经济崩溃，国家力量被巨型企业取代。夜之城——北加利福尼亚自由州的超级大都市——是世界上最暴力、最危险，也最充满机遇的地方。</p>
+    </section>
+
+    <!-- Districts -->
+    <section class="section bg-alt">
+        <div class="container">
+            <div class="sec-tag">地理</div><h2 class="sec-title">七大<span class="hl">城区</span></h2>
+            <p class="sec-desc">从富丽堂皇的企业广场到帮派横行的贫民窟，每个区域都有它自己的规则和主宰者。</p>
+            <div class="district-grid">
+                <div class="district-card reveal"><h4>沃森</h4><div class="d-loc">WATSON — 移民门户</div><p>夜之城的门户区域，也是大多数新移民的第一站。这里混杂着各个族裔的聚居区、黑市和地下格斗场。虎爪帮在此拥有强大势力。歌舞伎町市场是沃森的心脏地带。</p></div>
+                <div class="district-card reveal"><h4>威斯布鲁克</h4><div class="d-loc">WESTBROOK — 享乐天堂</div><p>夜之城的娱乐与奢侈消费中心。日本城（Japantown）是虎爪帮的大本营。这里遍布高档夜总会、赌场和豪华公寓，表面上光鲜亮丽，背后却是帮派与企业势力的激烈角逐。</p></div>
+                <div class="district-card reveal"><h4>市中心</h4><div class="d-loc">CITY CENTER — 权力核心</div><p>企业广场（Corpo Plaza）的所在地，荒坂、军用科技等超级企业的总部高楼矗立于此。这里是整个夜之城最繁华也最压抑的区域——钱与权决定一切。</p></div>
+                <div class="district-card reveal"><h4>海伍德</h4><div class="d-loc">HEYWOOD — 拉丁心脏</div><p>拉丁裔社区的大本营，瓦伦蒂诺帮的领地。这里以浓厚的宗教文化、家庭纽带和激烈的帮派冲突著称。V的街头小子出身就是从这里开始的。</p></div>
+                <div class="district-card reveal"><h4>圣多明戈</h4><div class="d-loc">SANTO DOMINGO — 工业命脉</div><p>夜之城的工业腹地，遍布工厂、发电厂和仓库。六街帮在这里招募失业工人和退伍军人。虽然看起来不起眼，但整个城市的物资供应都依赖这片区域。</p></div>
+                <div class="district-card reveal"><h4>帕西菲卡</h4><div class="d-loc">PACIFICA — 被遗忘之地</div><p>原本规划为豪华度假区，却在建设过程中被企业放弃，沦为夜之城最危险的区域。巫毒男孩在此盘踞，拥有强大的网络黑客力量。法律在这里几乎不存在。</p></div>
+                <div class="district-card reveal"><h4>狗镇</h4><div class="d-loc">DOGTOWN — 法外之地</div><p>《往日之影》新增区域。由前军用科技指挥官库尔特·汉森统治的独立王国。这里的规则只有一个：强者生存。国际军火商、政治难民和亡命之徒在此聚集。</p></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Corporations -->
+    <section class="section bg-dark">
+        <div class="container">
+            <div class="sec-tag">权力</div><h2 class="sec-title">巨型<span class="hl">企业</span></h2>
+            <p class="sec-desc">在2077年，企业就是法律。这些跨国巨型公司掌控着世界的命脉，从军火到医药，从网络到太空。</p>
+            <div class="corp-grid">
+                <div class="corp-card reveal"><h4>荒坂 Arasaka</h4><p>日本家族企业，世界顶级的安保与军火巨头。由荒坂三郎创立，以"保护"为名义向全球客户提供军事化安保服务。拥有自己的私人军队和技术研发部门。圣物（Relic）芯片的开发者，也是游戏主线剧情的核心反派。</p></div>
+                <div class="corp-card reveal"><h4>军用科技 Militech</h4><p>美国本土最大的武器制造商和军事承包商。与荒坂在多个领域展开激烈竞争，两者之间的企业战争是夜之城政治格局的底色。军用科技与NUSA（新美利坚合众国）政府关系紧密。</p></div>
+                <div class="corp-card reveal"><h4>康陶 Kang Tao</h4><p>中国智能武器制造商，在智能子弹追踪技术领域处于全球领先地位。相比荒坂和军用科技的强硬风格，康陶更注重商业利益与技术创新。以生产智能冲锋枪和智能手枪闻名。</p></div>
+                <div class="corp-card reveal"><h4>生物科技 Biotechnica</h4><p>基因工程与农业巨头，控制着全球大部分粮食生产。从转基因作物到人工蛋白，生物科技的产品遍布夜之城的每个角落。他们也涉足生物武器和基因改造项目。</p></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Gangs -->
+    <section class="section bg-alt">
+        <div class="container">
+            <div class="sec-tag">街头</div><h2 class="sec-title">主要<span class="hl">帮派</span></h2>
+            <p class="sec-desc">夜之城的街头由六大帮派主宰。每个帮派都有独特的文化、地盘和生存哲学。</p>
+            <div class="card-grid">
+                <div class="card accent-r reveal"><div class="card-icon">🐅</div><h3>虎爪帮</h3><p>以日本城为根据地的日裔帮派。以武士道精神自居，实则靠勒索、赌博和毒品交易为生。成员骑着改装摩托车在街头巡行，标志性的荧光纹身和武士刀令人闻风丧胆。地盘：威斯布鲁克与沃森。</p></div>
+                <div class="card accent-r reveal"><div class="card-icon">🌀</div><h3>漩涡帮</h3><p>痴迷于赛博改造的疯狂帮派，成员大量使用非法义体，外观几乎已不似人类。以极端暴力和精神不稳定著称，控制着沃森的工业区。他们对"血肉之躯"有宗教般的蔑视。</p></div>
+                <div class="card accent-r reveal"><div class="card-icon">🐻</div><h3>动物帮</h3><p>使用激素和生物增强的肌肉派帮派。不依赖赛博义体，而是通过类固醇和身体改造来获得力量。控制着圣多明戈部分区域和地下格斗场。他们的首领被称为"阿尔法"。</p></div>
+                <div class="card accent-r reveal"><div class="card-icon">💀</div><h3>巫毒男孩</h3><p>主要成员为海地裔的网络黑客帮派。表面上是帕西菲卡的小帮派，实际上在暗网中拥有惊人的力量。他们与AI实体有神秘联系，对旧网（Blackwall之外的网络）有深入了解。</p></div>
+                <div class="card accent-r reveal"><div class="card-icon">🌹</div><h3>瓦伦蒂诺帮</h3><p>海伍德最大的拉丁裔帮派。以忠诚、宗教和家庭荣誉为核心信条。表面上道貌岸然，私下却从事毒品、军火和人口贩卖。他们的圣日（Santa Muerte）崇拜与街头暴力形成鲜明对比。</p></div>
+                <div class="card accent-r reveal"><div class="card-icon">⭐</div><h3>六街帮</h3><p>自称"爱国者"的退伍军人帮派，以圣多明戈为基地。他们认为政府已经腐化，只有他们能保护"真正的美国精神"。穿着改造过的军装，使用军用级武器，组织严密，战斗力强悍。</p></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer"><div class="footer-logo">CYBERPUNK 2077</div><p class="footer-desc">了解夜之城的规则，才能在其中生存。</p><ul class="footer-links"><li><a href="index.html">首页</a></li><li><a href="game.html">游戏系统 →</a></li><li><a href="https://www.cyberpunk.net" target="_blank" rel="noopener">官方网站</a></li></ul><div class="footer-div"></div><p class="copyright">© 2026 CYBERPUNK 2077 Fan Page</p></footer>
+    <script src="js/cyberpunk.js"></script>
+</body>
+</html>

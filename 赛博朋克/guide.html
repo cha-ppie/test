@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>攻略流派 — CYBERPUNK 2077</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tomorrow:wght@300;400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/cyberpunk.css">
+    <style>
+        .page-hero{background:radial-gradient(ellipse at 50% 40%,rgba(255,0,60,.04),transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(252,238,9,.04),transparent 50%),var(--black)}
+        .guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem}
+        .guide-card{background:var(--dark-grey);clip-path:polygon(0 16px,16px 0,100% 0,100% 100%,0 100%,0 calc(100% - 16px));padding:1.8rem;transition:.4s;cursor:default}
+        .guide-card:hover{background:#1e2532;box-shadow:0 0 30px rgba(252,238,9,.05),0 10px 40px rgba(0,0,0,.5);transform:translateY(-3px)}
+        .guide-hd{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem}
+        .guide-num{font-family:var(--font-tech);font-size:3rem;font-weight:900;color:rgba(252,238,9,.12);line-height:1;flex-shrink:0}
+        .guide-card h3{font-family:var(--font-tech);font-size:1.05rem;font-weight:600;letter-spacing:1px;color:#fff;text-transform:uppercase;padding-top:.3rem}
+        .guide-card p{color:var(--grey);font-size:.85rem;line-height:1.8}
+        .guide-card p .em{color:var(--yellow)}
+        .build-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:1.5rem}
+        .build-card{background:var(--dark-grey);clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);padding:1.8rem 2rem;border-left:3px solid var(--yellow);transition:.4s;position:relative;cursor:default}
+        .build-card::after{content:'';position:absolute;bottom:0;right:0;width:50px;height:50px;background:linear-gradient(135deg,transparent calc(50% - 1px),rgba(252,238,9,.06) 50%,transparent calc(50% + 1px))}
+        .build-card:hover{transform:translateX(6px);box-shadow:0 0 30px rgba(252,238,9,.06),0 10px 40px rgba(0,0,0,.5);background:#1e2532}
+        .build-card h3{font-family:var(--font-tech);font-size:1.2rem;font-weight:600;letter-spacing:2px;color:#fff;text-transform:uppercase;margin-bottom:.4rem}
+        .build-type{display:inline-block;font-family:var(--font-ui);font-size:.6rem;font-weight:600;letter-spacing:2px;color:var(--yellow);text-transform:uppercase;padding:.2rem .6rem;background:rgba(252,238,9,.08);margin-bottom:.8rem;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)}
+        .build-card p{color:var(--grey);font-size:.85rem;line-height:1.8}
+        .build-attrs{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+        .build-attrs span{font-family:var(--font-ui);font-size:.6rem;letter-spacing:1px;color:var(--grey);padding:.15rem .5rem;border:1px solid rgba(255,255,255,.1);text-transform:uppercase}
+    </style>
+</head>
+<body>
+    <canvas id="fragmentCanvas"></canvas><div class="glitch-blocks" id="glitchBlocks"></div>
+    <div class="rgb-bar" style="top:22%;left:0;width:100%;background:linear-gradient(90deg,transparent,rgba(255,0,60,.12) 40%,rgba(252,238,9,.12) 80%,transparent)"></div>
+    <div class="noise-overlay"></div>
+    <div class="music-player"><span class="music-label">AMBIENT</span><button class="music-btn" id="musicBtn"><span class="icon">♪</span></button></div>
+
+    <nav class="nav" id="nav"><div class="nav-inner">
+        <a href="index.html" class="nav-logo">CYBERPUNK 2077</a>
+        <div class="menu-toggle" id="menuBtn"><span></span><span></span><span></span></div>
+        <ul class="nav-links" id="navMenu">
+            <li><a href="index.html">首页</a></li><li><a href="world.html">世界观</a></li><li><a href="game.html">游戏系统</a></li><li><a href="guide.html">攻略流派</a></li><li><a href="edgerunners.html">边缘行者</a></li><li><a href="gallery.html">画廊</a></li>
+        </ul>
+    </div></nav>
+
+    <section class="page-hero">
+        <div class="page-subtitle">GUIDE & BUILDS</div>
+        <h1 class="glitch" data-text="攻略流派" style="font-size:clamp(2.5rem,7vw,5rem)">攻略流派</h1>
+        <p style="color:var(--grey);max-width:600px;margin:2rem auto 0;font-size:.95rem">无论你是第一次踏入夜之城的新人，还是重返街头的老兵——活下去，变得更强。</p>
+    </section>
+
+    <!-- Tips -->
+    <section class="section bg-alt">
+        <div class="container">
+            <div class="sec-tag">生存指南</div><h2 class="sec-title">新手指南<span class="hl">&</span>进阶技巧</h2>
+            <p class="sec-desc">六条核心铁律——从踏入夜之城的第一天就记住它们。</p>
+            <div class="guide-grid">
+                <div class="guide-card reveal"><div class="guide-hd"><div class="guide-num">01</div><h3>不要急于推进主线</h3></div><p>支线任务、NCPD警情通报和中间人委托不仅是赚钱和装备的来源，更是了解夜之城角色与世界的窗口。平衡主线与支线的节奏。</p></div>
+                <div class="guide-card reveal"><div class="guide-hd"><div class="guide-num">02</div><h3>扫描器是最重要的工具</h3></div><p>标记敌人、揭示弱点、发现炮塔陷阱、高亮拾取物、规划潜行路线。养成每到一个新区域就按住TAB扫描的习惯——这是生存的第一准则。</p></div>
+                <div class="guide-card reveal"><div class="guide-hd"><div class="guide-num">03</div><h3>勤按F5快速存档</h3></div><p>不要完全依赖自动存档。关键对话和战斗前手动存档，让你能尝试不同选择和战术打法。游戏偶尔仍可能崩溃。</p></div>
+                <div class="guide-card reveal"><div class="guide-hd"><div class="guide-num">04</div><h3>对付敌方网络黑客</h3></div><p>屏幕上方出现红色进度条？有黑客在入侵你。开启扫描找到黄色追踪线→通过监控摄像头定位→用短路破解或科技武器穿墙击杀。</p></div>
+                <div class="guide-card reveal"><div class="guide-hd"><div class="guide-num">05</div><h3>属性点不能随意重置</h3></div><p>技能点随时免费重置，但<span class="em">属性点只能重置一次</span>。五大属性——肉体、反应、技术能力、智力、镇定——决定了你的整个角色构筑方向，投入前请三思。</p></div>
+                <div class="guide-card reveal"><div class="guide-hd"><div class="guide-num">06</div><h3>"大抢劫"藏着宝藏</h3></div><p>在"The Heist"任务离开顶层公寓前彻底搜索——<span class="em">觉</span>武士刀、<span class="em">涅槃</span>匕首、<span class="em">金刚</span>手枪、独特服装，以及独一无二的<span class="em">鬣蜥蛋</span>都在这里。</p></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Builds -->
+    <section class="section bg-dark">
+        <div class="container">
+            <div class="sec-tag" style="color:var(--yellow)">角色构筑</div><h2 class="sec-title">六大<span class="hl">强力BD</span></h2>
+            <p class="sec-desc">从潜行黑客到狂暴战士，2.3+版本经社区验证的六种终极流派。每种流派都标注了关键属性分配。</p>
+            <div class="build-grid">
+                <div class="build-card reveal"><h3>🖥️ 纯网络黑客</h3><span class="build-type">NETRUNNER</span><p>以快速破解为主要输出的终极法术流派。利用"过载"技能突破RAM上限，在同一时间内上传多种破解：短路、过热、系统重置。配合监控摄像头，你可以在不踏入建筑的情况下清空整栋楼的敌人。</p><div class="build-attrs"><span>智力 20</span><span>镇定 20</span><span>技术 20</span></div></div>
+                <div class="build-card reveal"><h3>⚔️ 反应武士</h3><span class="build-type">CYBER-SAMURAI</span><p>武士刀+斯安威斯坦（子弹时间）的近战流派。冲刺技能+强化肌腱二段跳+空中冲刺组合，让你在战场上化身不可触及的赛博忍者。核心循环：激活斯安威斯坦→冲刺切入→斩击→空中冲刺脱离。</p><div class="build-attrs"><span>反应 20</span><span>肉体 20</span><span>镇定 18</span></div></div>
+                <div class="build-card reveal"><h3>🔫 潜行枪手</h3><span class="build-type">HITMAN</span><p>消音手枪+光学迷彩的暗杀流派。专注爆头伤害加成和脱离战斗后的隐身重置。一把高面板消音手枪在手，你就是夜之城最危险的幽灵杀手。没有人看到你，没有人听到你。</p><div class="build-attrs"><span>镇定 20</span><span>反应 20</span><span>智力 16</span></div></div>
+                <div class="build-card reveal"><h3>💪 狂暴战士</h3><span class="build-type">BERSERK</span><p>大猩猩手臂+狂暴操作系统的坦克流派。超高生存能力和近战伤害倍率让你正面硬刚任何敌人。拳击任务势不可挡。大猩猩手臂提供+6肉体加成用于属性检定，轻松通过所有力量门槛。</p><div class="build-attrs"><span>肉体 20</span><span>技术 20</span><span>反应 18</span></div></div>
+                <div class="build-card reveal"><h3>🔌 震撼科技兵</h3><span class="build-type">TECH RUNNER</span><p>科技霰弹枪+连锁闪电效果的混合流派。充能射击可以穿墙击杀掩体后的敌人，连锁闪电让每一次射击都波及周围目标。后期最暴力的AOE流派——一枪清场不是梦。</p><div class="build-attrs"><span>技术 20</span><span>肉体 20</span><span>反应 18</span></div></div>
+                <div class="build-card reveal"><h3>🎯 智能武器专家</h3><span class="build-type">SMART GUNNER</span><p>智能冲锋枪+快速破解的混合流派。智能武器自动追踪目标，配合网络破解削弱敌人防御和移动能力。中距离绝对统治——让科技为你而战，你只需要扣动扳机。</p><div class="build-attrs"><span>智力 20</span><span>反应 20</span><span>肉体 16</span></div></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer"><div class="footer-logo">CYBERPUNK 2077</div><p class="footer-desc">选一个流派，然后成为传奇。</p><ul class="footer-links"><li><a href="index.html">首页</a></li><li><a href="edgerunners.html">边缘行者 →</a></li><li><a href="https://www.cyberpunk.net" target="_blank" rel="noopener">官方网站</a></li></ul><div class="footer-div"></div><p class="copyright">© 2026 CYBERPUNK 2077 Fan Page</p></footer>
+    <script src="js/cyberpunk.js"></script>
+</body>
+</html>

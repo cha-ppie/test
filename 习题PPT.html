@@ -1,0 +1,1997 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java面向对象程序设计复习</title>
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES (THEME)
+           =========================================== */
+        :root {
+            --stage-bg: #10151f;
+            --slide-bg: #f5f1e8;
+            --ink: #17202a;
+            --muted: #5d6673;
+            --paper: #fffaf0;
+            --line: #d8cdbb;
+            --green: #1d7a68;
+            --red: #b34f38;
+            --gold: #c69035;
+            --blue: #244d75;
+            --shadow: rgba(28, 34, 42, 0.1);
+            --font-display: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+            --font-mono: "JetBrains Mono", "SFMono-Regular", "Consolas", monospace;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.55s;
+        }
+
+        /* ===========================================
+           BASE STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ===========================================
+           FIXED 16:9 STAGE: MANDATORY BASE STYLES
+           Include this ENTIRE file in every presentation.
+           Slides are authored at 1920x1080 and scaled as a whole.
+           =========================================== */
+
+        /* 1. Lock the browser viewport */
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+
+        /* 2. Full-window deck viewport */
+        .deck-viewport {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+
+        /* 3. Fixed 16:9 design canvas.
+           JavaScript sets transform: translate(...) scale(...). */
+        .deck-stage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            transform-origin: 0 0;
+            background: var(--slide-bg, #fff);
+        }
+
+        /* 4. Slides stack inside the fixed stage.
+           Content must be laid out at 1920x1080, not reflowed per device. */
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            background: var(--slide-bg, #fff);
+        }
+
+        .slide.active,
+        .slide.visible {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 1;
+        }
+
+        /* 5. Keep media inside authored slide bounds */
+        img,
+        video,
+        canvas,
+        svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* 6. Presentation chrome stays outside the slide design system */
+        .deck-controls {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        /* 7. Print one fixed-size slide per page */
+        @media print {
+            html,
+            body {
+                width: 1920px;
+                height: auto;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-viewport {
+                position: static;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-stage {
+                position: static;
+                width: auto;
+                height: auto;
+                transform: none !important;
+                background: none;
+            }
+
+            .slide {
+                position: relative;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                width: 1920px;
+                height: 1080px;
+                break-after: page;
+                page-break-after: always;
+            }
+
+            .slide:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+
+            .deck-controls,
+            .question-timer {
+                display: none !important;
+            }
+        }
+
+        /* 8. Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+        }
+
+        /* ===========================================
+           SLIDE SURFACE
+           =========================================== */
+        body { color: var(--ink); font-family: var(--font-display); }
+        .slide {
+            background:
+                linear-gradient(90deg, rgba(36, 77, 117, 0.035) 1px, transparent 1px),
+                linear-gradient(rgba(36, 77, 117, 0.03) 1px, transparent 1px),
+                radial-gradient(circle at 88% 18%, rgba(198, 144, 53, 0.14), transparent 260px),
+                radial-gradient(circle at 12% 84%, rgba(29, 122, 104, 0.1), transparent 280px),
+                var(--slide-bg);
+            background-size: 40px 40px, 40px 40px, auto, auto, auto;
+        }
+        .slide::before {
+            content: "";
+            position: absolute;
+            inset: 44px;
+            border: 2px solid rgba(23, 32, 42, 0.13);
+            pointer-events: none;
+        }
+        .slide::after {
+            content: "JAVA OOP";
+            position: absolute;
+            right: -55px;
+            bottom: 104px;
+            color: rgba(23, 32, 42, 0.08);
+            font-family: var(--font-mono);
+            font-size: 46px;
+            font-weight: 700;
+            letter-spacing: 0;
+            transform: rotate(-90deg);
+        }
+        .sheet {
+            position: absolute;
+            inset: 68px 104px 54px 104px;
+            display: grid;
+            grid-template-rows: 96px 1fr 38px;
+            gap: 18px;
+        }
+        .topbar {
+            display: grid;
+            grid-template-columns: 205px 1fr 220px;
+            align-items: end;
+            gap: 28px;
+            border-bottom: 4px double rgba(23, 32, 42, 0.26);
+            padding-bottom: 16px;
+        }
+        .badge {
+            width: 172px;
+            height: 64px;
+            display: grid;
+            place-items: center;
+            background: var(--ink);
+            color: #fff7e9;
+            font-family: var(--font-mono);
+            font-size: 25px;
+            font-weight: 700;
+            box-shadow: 7px 7px 0 rgba(179, 79, 56, 0.16);
+        }
+        .topic {
+            color: var(--green);
+            font-size: 29px;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+        .meta {
+            color: var(--muted);
+            font-family: var(--font-mono);
+            font-size: 17px;
+            text-align: right;
+            line-height: 1.45;
+        }
+        .brand-meta {
+            display: grid;
+            justify-items: end;
+            align-content: end;
+            gap: 6px;
+            min-width: 0;
+        }
+        .school-logo {
+            width: 176px;
+            max-height: 38px;
+            object-fit: contain;
+            opacity: 0.92;
+            filter: brightness(0) saturate(100%) invert(32%) sepia(26%) saturate(1118%) hue-rotate(124deg) brightness(91%) contrast(88%);
+        }
+        .body {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 520px;
+            gap: 34px;
+            min-height: 0;
+        }
+        .prompt {
+            background: rgba(255, 250, 240, 0.9);
+            border: 1px solid var(--line);
+            box-shadow: 0 16px 32px var(--shadow);
+            padding: 26px 34px;
+            min-height: 0;
+        }
+        .prompt h1 {
+            color: var(--ink);
+            font-size: 38px;
+            line-height: 1.22;
+            letter-spacing: 0;
+            margin-bottom: 18px;
+        }
+        .question-text {
+            color: #25303c;
+            font-size: 27px;
+            line-height: 1.42;
+            white-space: pre-line;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-top: 16px;
+        }
+        .option {
+            min-height: 72px;
+            border: 1px solid rgba(23, 32, 42, 0.18);
+            background: rgba(245, 241, 232, 0.84);
+            padding: 18px 20px;
+            color: #25303c;
+            font-size: 24px;
+            line-height: 1.28;
+        }
+        .code-shell {
+            margin-top: 24px;
+            background: #111923;
+            color: #f5f1e8;
+            border-left: 9px solid var(--green);
+            display: grid;
+            grid-template-rows: 44px minmax(0, 1fr);
+            font-family: var(--font-mono);
+            font-size: 15.5px;
+            line-height: 1.22;
+            max-height: 642px;
+            overflow: hidden;
+        }
+        .code-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            min-height: 44px;
+            padding: 0 18px;
+            border-bottom: 1px solid rgba(255, 250, 240, 0.14);
+            background: rgba(255, 250, 240, 0.04);
+        }
+        .code-label {
+            color: rgba(255, 250, 240, 0.7);
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .code-full-btn, .code-close-btn {
+            border: 1px solid rgba(255, 250, 240, 0.24);
+            background: rgba(255, 250, 240, 0.08);
+            color: #fffaf0;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+        .code-listing {
+            overflow: hidden;
+            padding: 16px 0;
+            tab-size: 4;
+        }
+        .code-line {
+            display: grid;
+            grid-template-columns: 48px minmax(0, 1fr);
+            column-gap: 16px;
+            min-height: 19px;
+            padding: 0 18px 0 0;
+        }
+        .line-number {
+            color: rgba(255, 250, 240, 0.34);
+            text-align: right;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .code-text {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+        .kw { color: #7bdff2; font-weight: 700; }
+        .type { color: #f7d774; }
+        .str { color: #9be28f; }
+        .num { color: #ffb86c; }
+        .comment { color: #8291a7; font-style: italic; }
+        .program .code-shell { font-size: 15.5px; line-height: 1.22; max-height: 642px; }
+        .talk-slide .sheet {
+            grid-template-rows: 96px 1fr 38px;
+        }
+        .talk-body {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 42px;
+            min-height: 0;
+        }
+        .talk-main, .talk-side {
+            background: rgba(255, 250, 240, 0.82);
+            border: 1px solid rgba(23, 32, 42, 0.17);
+            box-shadow: 0 16px 32px var(--shadow);
+            padding: 34px 42px;
+            min-height: 0;
+        }
+        .talk-main h1 {
+            color: var(--ink);
+            font-size: 54px;
+            line-height: 1.16;
+            margin-bottom: 26px;
+        }
+        .talk-main p, .talk-main li,
+        .talk-side p, .talk-side li {
+            color: #25303c;
+            font-size: 29px;
+            line-height: 1.46;
+        }
+        .talk-main ul, .talk-side ul {
+            display: grid;
+            gap: 16px;
+            padding-left: 34px;
+        }
+        .talk-side-title {
+            color: var(--red);
+            font-family: var(--font-mono);
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+        .route-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-top: 18px;
+        }
+        .route-item {
+            border: 1px solid rgba(23, 32, 42, 0.16);
+            background: rgba(245, 241, 232, 0.72);
+            padding: 18px 20px;
+        }
+        .route-kicker {
+            color: var(--green);
+            font-family: var(--font-mono);
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .route-title {
+            color: var(--ink);
+            font-size: 27px;
+            font-weight: 900;
+            line-height: 1.24;
+        }
+        .section-slide .talk-main h1 {
+            font-size: 62px;
+        }
+        .score-list {
+            display: grid;
+            gap: 14px;
+        }
+        .score-row {
+            display: grid;
+            grid-template-columns: 112px 1fr;
+            gap: 18px;
+            align-items: start;
+            border-bottom: 1px solid rgba(23, 32, 42, 0.12);
+            padding-bottom: 12px;
+        }
+        .score-points {
+            color: var(--blue);
+            font-family: var(--font-mono);
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .score-text {
+            color: #25303c;
+            font-size: 27px;
+            line-height: 1.38;
+        }
+        .side {
+            display: grid;
+            grid-template-rows: 1fr 148px;
+            gap: 24px;
+            min-height: 0;
+        }
+        .note, .answer-card {
+            background: rgba(255, 250, 240, 0.72);
+            border: 1px solid rgba(23, 32, 42, 0.17);
+            box-shadow: 0 12px 24px rgba(28, 34, 42, 0.055);
+            padding: 24px;
+            min-height: 0;
+        }
+        .note-label {
+            color: var(--red);
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .hint-button {
+            min-height: 46px;
+            border: 1px solid rgba(36, 77, 117, 0.26);
+            background: rgba(36, 77, 117, 0.08);
+            color: var(--blue);
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 800;
+            cursor: pointer;
+            padding: 0 16px;
+            margin-bottom: 16px;
+        }
+        .hint-button:hover {
+            background: rgba(36, 77, 117, 0.14);
+        }
+        .note p {
+            color: #364250;
+            font-size: 22px;
+            line-height: 1.48;
+            white-space: pre-line;
+        }
+        .answer-card {
+            display: grid;
+            align-content: center;
+            gap: 14px;
+        }
+        .answer-card p {
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.35;
+        }
+        .answer-button {
+            width: 100%;
+            min-height: 58px;
+            border: 1px solid rgba(36, 77, 117, 0.3);
+            background: var(--blue);
+            color: #fffaf0;
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 900;
+            cursor: pointer;
+            text-align: left;
+            padding: 0 18px;
+        }
+        .answer-button::before {
+            content: "+";
+            display: inline-grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            margin-right: 12px;
+            color: var(--blue);
+            background: #fffaf0;
+            font-family: var(--font-mono);
+            font-size: 22px;
+            vertical-align: 2px;
+        }
+        .footer {
+            display: grid;
+            grid-template-columns: 1fr;
+            align-items: center;
+            gap: 24px;
+        }
+        .page-no {
+            color: var(--muted);
+            font-family: var(--font-mono);
+            font-size: 19px;
+            text-align: right;
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .slide.visible .reveal:nth-child(1) { transition-delay: 0.08s; }
+        .slide.visible .reveal:nth-child(2) { transition-delay: 0.15s; }
+        .slide.visible .reveal:nth-child(3) { transition-delay: 0.22s; }
+
+        /* ===========================================
+           PRESENTATION CHROME
+           =========================================== */
+        .deck-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #f5f1e8;
+            font-family: var(--font-mono);
+            font-size: 15px;
+            background: rgba(16, 21, 31, 0.78);
+            border: 1px solid rgba(255, 250, 240, 0.22);
+            padding: 10px 14px;
+            backdrop-filter: blur(10px);
+            opacity: 0.28;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .deck-controls:hover,
+        .deck-controls:focus-within {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+        .deck-controls button, .edit-toggle {
+            border: 1px solid rgba(255, 250, 240, 0.28);
+            color: #fffaf0;
+            background: rgba(255, 250, 240, 0.08);
+            font-family: var(--font-mono);
+            padding: 7px 11px;
+            cursor: pointer;
+        }
+        .code-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            display: none;
+            background: #0c121a;
+            color: #fffaf0;
+            font-family: var(--font-mono);
+            padding: 42px;
+        }
+        .code-overlay.open {
+            display: grid;
+        }
+        .code-overlay-panel {
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            display: grid;
+            grid-template-rows: 72px minmax(0, 1fr);
+            background: #0c121a;
+            border: 1px solid rgba(255, 250, 240, 0.18);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
+        }
+        .code-overlay-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            border-bottom: 1px solid rgba(255, 250, 240, 0.18);
+            background: rgba(255, 250, 240, 0.04);
+        }
+        .code-overlay-title {
+            color: rgba(255, 250, 240, 0.82);
+            font-weight: 700;
+        }
+        .code-overlay .code-listing {
+            overflow: auto;
+            padding: 28px 0;
+            font-size: 24px;
+            line-height: 1.38;
+        }
+        .code-overlay .code-line {
+            grid-template-columns: 72px minmax(0, 1fr);
+            padding-right: 34px;
+        }
+        .answer-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 19000;
+            display: none;
+            place-items: center;
+            background: rgba(16, 21, 31, 0.72);
+            backdrop-filter: blur(10px);
+        }
+        .answer-overlay.open {
+            display: grid;
+        }
+        .question-timer {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 21000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            color: #fffaf0;
+            background: rgba(16, 21, 31, 0.7);
+            border: 1px solid rgba(255, 250, 240, 0.2);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+            font-family: var(--font-mono);
+            backdrop-filter: blur(8px);
+        }
+        .question-timer.show {
+            display: inline-flex;
+        }
+        .question-timer-label {
+            color: rgba(255, 250, 240, 0.72);
+            font-size: 14px;
+        }
+        .question-timer-time {
+            min-width: 66px;
+            font-size: 22px;
+            font-weight: 800;
+            text-align: center;
+        }
+        .question-timer button {
+            min-width: 46px;
+            min-height: 32px;
+            border: 1px solid rgba(255, 250, 240, 0.24);
+            color: #fffaf0;
+            background: rgba(255, 250, 240, 0.08);
+            font-family: var(--font-mono);
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        .question-timer button:hover {
+            background: rgba(255, 250, 240, 0.16);
+        }
+        .answer-panel {
+            width: min(1320px, calc(100vw - 96px));
+            max-height: min(820px, calc(100vh - 96px));
+            display: grid;
+            grid-template-rows: 78px minmax(0, 1fr);
+            background:
+                linear-gradient(90deg, rgba(36, 77, 117, 0.04) 1px, transparent 1px),
+                linear-gradient(rgba(36, 77, 117, 0.035) 1px, transparent 1px),
+                #fffaf0;
+            background-size: 34px 34px;
+            border: 1px solid rgba(23, 32, 42, 0.2);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+        }
+        .answer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 0 30px;
+            border-bottom: 3px double rgba(23, 32, 42, 0.2);
+        }
+        .answer-title {
+            color: var(--blue);
+            font-size: 30px;
+            font-weight: 900;
+        }
+        .answer-close-btn {
+            border: 1px solid rgba(36, 77, 117, 0.28);
+            background: var(--blue);
+            color: #fffaf0;
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 900;
+            padding: 10px 18px;
+            cursor: pointer;
+        }
+        .answer-body {
+            overflow: auto;
+            padding: 24px 40px 36px;
+            color: #25303c;
+            font-size: 30px;
+            line-height: 1.55;
+            white-space: pre-line;
+        }
+        .answer-body .answer-text-block {
+            white-space: pre-line;
+            margin-bottom: 10px;
+        }
+        .answer-body .answer-code-shell {
+            margin: 8px 0 18px;
+            background: #111923;
+            border-left: 9px solid var(--green);
+            color: #f5f1e8;
+            font-family: var(--font-mono);
+            font-size: 17px;
+            line-height: 1.08;
+        }
+        .answer-body .answer-code-shell .code-toolbar {
+            min-height: 38px;
+        }
+        .answer-body .answer-code-shell .code-listing {
+            max-height: none;
+            overflow: visible;
+            padding: 8px 0 10px;
+        }
+        .answer-body .answer-code-shell .code-line {
+            grid-template-columns: 50px minmax(0, 1fr);
+            min-height: 18px;
+            padding-right: 20px;
+        }
+        .answer-body code {
+            font-family: var(--font-mono);
+            font-size: 25px;
+        }
+        .edit-hotzone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            z-index: 10000;
+            cursor: pointer;
+        }
+        .edit-toggle {
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            z-index: 10001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .edit-toggle.show, .edit-toggle.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .editing [data-editable="true"] {
+            outline: 2px dashed rgba(179, 79, 56, 0.75);
+            outline-offset: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="deck-viewport">
+        <main class="deck-stage" id="deckStage"></main>
+    </div>
+    <div class="deck-controls">
+        <button id="prevBtn" title="上一页">上一页</button>
+        <span id="counter">1 / 41</span>
+        <button id="nextBtn" title="下一页">下一页</button>
+        <button id="deckFullscreenBtn" title="全屏播放">全屏</button>
+    </div>
+    <div class="question-timer" id="questionTimer" aria-live="polite">
+        <span class="question-timer-label">本题用时</span>
+        <span class="question-timer-time" id="questionTimerTime">00:00</span>
+        <button id="questionTimerPause" type="button">暂停</button>
+        <button id="questionTimerReset" type="button">归零</button>
+    </div>
+    <div class="code-overlay" id="codeOverlay" aria-hidden="true" onclick="closeCodeFullscreen()">
+        <div class="code-overlay-panel" onclick="event.stopPropagation()">
+            <div class="code-overlay-header">
+                <div class="code-overlay-title" id="codeOverlayTitle">程序代码</div>
+                <button class="code-close-btn" id="codeCloseBtn" type="button" onclick="closeCodeFullscreen()">退出全屏</button>
+            </div>
+            <div class="code-listing" id="codeOverlayBody"></div>
+        </div>
+    </div>
+    <div class="answer-overlay" id="answerOverlay" aria-hidden="true" onclick="closeAnswerOverlay()">
+        <div class="answer-panel" onclick="event.stopPropagation()">
+            <div class="answer-header">
+                <div class="answer-title" id="answerOverlayTitle">参考答案</div>
+                <button class="answer-close-btn" id="answerCloseBtn" type="button" onclick="closeAnswerOverlay()">关闭答案</button>
+            </div>
+            <div class="answer-body" id="answerOverlayBody"></div>
+        </div>
+    </div>
+    <div class="edit-hotzone" title="编辑模式"></div>
+    <button class="edit-toggle" id="editToggle" title="Edit mode (E)">Edit</button>
+
+    <script>
+        /* ===========================================
+           QUESTION BANK
+           =========================================== */
+        const introSlides = [
+            {
+                kind: "talk",
+                badge: "复习",
+                topic: "复习课导入",
+                title: "Java 面向对象程序设计复习",
+                body: [
+                    "本节课使用一组试题梳理 Java 面向对象核心知识。",
+                    "请先独立完成判断、读程序和补代码，再结合讲解修正思路，重点关注语法细节、执行过程和常见易错点。"
+                ],
+                sideTitle: "复习节奏",
+                side: [
+                    "先作答：独立判断，不急着看提示",
+                    "再推演：写出依据或执行过程",
+                    "后修正：对照解析整理易错点"
+                ]
+            },
+            {
+                kind: "route",
+                badge: "路线",
+                topic: "复习路线",
+                title: "模块化复习路线",
+                body: [
+                    { kicker: "模块 A", title: "Java 基础、数组、类和对象" },
+                    { kicker: "模块 B", title: "继承、多态、异常处理" },
+                    { kicker: "模块 C", title: "常用类、集合框架、泛型" },
+                    { kicker: "模块 D", title: "IO、多线程、综合程序设计" }
+                ],
+                sideTitle: "题型任务",
+                side: [
+                    "选择题快速定位概念漏洞",
+                    "读程序题训练执行过程追踪",
+                    "填空和设计题落实代码书写"
+                ]
+            }
+        ];
+
+        const sectionSlides = [
+            {
+                before: "Q01 开发工具",
+                badge: "01",
+                topic: "模块一",
+                title: "Java 基础与数组",
+                body: [
+                    "关注命令、JVM、数据类型、运算顺序、流程控制和数组下标。",
+                    "每道题先找关键词，再判断它对应的语法规则或运行结果。"
+                ],
+                sideTitle: "本段重点",
+                side: [
+                    "Q01-Q05：命令、JVM、类型、运算、流程",
+                    "Q06：数组下标与条件分支",
+                    "Q07：数组下标与自增运算"
+                ]
+            },
+            {
+                before: "Q08 方法重载",
+                badge: "02",
+                topic: "模块二",
+                title: "类、对象与封装",
+                body: [
+                    "把“类定义对象、对象保存状态、方法改变状态”连成一条线。",
+                    "重点辨析 this、引用赋值、private 访问这几个高频点。"
+                ],
+                sideTitle: "本段重点",
+                side: [
+                    "Q09：由输出反推构造方法和实例方法",
+                    "Q10：引用变量共享同一个对象",
+                    "Q11：封装与 getter/setter 访问路径"
+                ]
+            },
+            {
+                before: "Q12 方法重写判断",
+                badge: "03",
+                topic: "模块三",
+                title: "继承、多态与异常",
+                body: [
+                    "本段是面向对象复习的主线：继承结构、方法重写、动态绑定，再过渡到异常处理。",
+                    "读程序题先标出编译期类型和运行时对象，再判断方法调用和字段访问。"
+                ],
+                sideTitle: "本段重点",
+                side: [
+                    "Q15：多个引用指向同一对象时的状态修改",
+                    "Q17 用“先具体后一般”记 catch 顺序",
+                    "Q18：空引用异常、catch 分支和 finally 执行"
+                ]
+            },
+            {
+                before: "Q19 String方法",
+                badge: "04",
+                topic: "模块四",
+                title: "实用类、集合与泛型",
+                body: [
+                    "把常用 API 题讲成“对象会变吗、集合存什么、泛型约束什么”。",
+                    "先圈出方法名，再预测对象内容、集合顺序或泛型类型的变化。"
+                ],
+                sideTitle: "本段重点",
+                side: [
+                    "Q21 逐步写出 StringBuilder 内容",
+                    "Q24 注意 List 下标增删后的顺序",
+                    "Q27 对齐泛型方法返回值和实参类型"
+                ]
+            },
+            {
+                before: "Q28 try-with-resources",
+                badge: "05",
+                topic: "模块五",
+                title: "IO、多线程与综合设计",
+                body: [
+                    "最后一段从资源关闭、字节输出、线程基础，收束到综合程序设计。",
+                    "综合题不只看代码能否跑，还要看是否体现继承、多态、集合和泛型。"
+                ],
+                sideTitle: "本段重点",
+                side: [
+                    "Q30：FileOutputStream、write 和 IOException",
+                    "Q31-Q32：sleep 方法和线程基本概念",
+                    "Q33 先拆得分点，再写代码"
+                ]
+            }
+        ];
+
+        const questions = [
+            {
+                topic: "Java简介",
+                type: "选择题",
+                title: "Q01 开发工具",
+                text: "在命令行开发 Java 程序时，用于把源代码翻译成 JVM 可识别中间形式的工具是（  ）。",
+                options: ["A. java", "B. javac", "C. javadoc", "D. jar"],
+                note: "抓关键词：把源代码变成字节码。编译用 javac，运行用 java。",
+                answer: "答案：B\n解析：javac 负责把 .java 源文件编译成 .class 字节码；java 命令用于启动 JVM 执行字节码。"
+            },
+            {
+                topic: "Java简介",
+                type: "选择题",
+                title: "Q02 JVM职责",
+                text: "下列哪项更准确地描述了 JVM 的作用（  ）。",
+                options: ["A. 负责编辑 Java 源代码", "B. 负责运行字节码并管理运行时环境", "C. 负责把网页转换为 Java 类", "D. 负责替代操作系统管理所有文件"],
+                note: "抓关键词：JVM 是运行环境，不是编辑器，也不是操作系统。",
+                answer: "答案：B\n解析：JVM 负责装载并运行字节码，同时管理运行时内存、类加载等环境。"
+            },
+            {
+                topic: "Java语言基础",
+                type: "选择题",
+                title: "Q03 字符常量",
+                text: "下列赋值语句中，能够正确声明一个 char 变量的是（  ）。",
+                options: ["A. char grade = 'A';", "B. char grade = \"A\";", "C. char grade = true;", "D. char grade = 65.5;"],
+                note: "易错点：char 用单引号，String 用双引号。",
+                answer: "答案：A\n解析：'A' 是 char 字符常量；\"A\" 是字符串，true 是 boolean，65.5 是小数。"
+            },
+            {
+                topic: "Java语言基础",
+                type: "选择题",
+                title: "Q04 复合赋值",
+                text: "执行 int x = 4; x += 3 * 2; 后，x 的值是（  ）。",
+                options: ["A. 10", "B. 14", "C. 11", "D. 24"],
+                note: "先算乘法，再执行 +=。关键中间值是 3 * 2。",
+                answer: "答案：A\n解析：3 * 2 先得到 6，x += 6 等价于 x = x + 6，所以 x 为 10。"
+            },
+            {
+                topic: "Java语言基础",
+                type: "选择题",
+                title: "Q05 break语句",
+                text: "在 switch 或循环结构中，break 语句通常用于（  ）。",
+                options: ["A. 跳过本次循环剩余语句并进入下一次循环", "B. 立即结束所在的 switch 或循环结构", "C. 创建一个新对象", "D. 捕获异常对象"],
+                note: "对比记忆：break 结束结构，continue 跳过本轮循环。",
+                answer: "答案：B\n解析：break 会立即结束所在 switch 或循环；continue 只结束本次循环，进入下一次循环判断。"
+            },
+            {
+                topic: "Java语言基础",
+                type: "阅读程序写结果",
+                title: "Q06 数组与循环",
+                text: "写出下面程序的输出结果。",
+                code: "public class TestBasic {\n    public static void main(String[] args) {\n        int[] nums = {1, 3, 4, 6};\n        int total = 0;\n        for (int n : nums) {\n            if (n % 3 == 0) {\n                continue;\n            }\n            total += n;\n        }\n        System.out.println(total);\n    }\n}",
+                note: "先判断哪些元素会被 continue 跳过，再累计剩余元素。",
+                answer: "输出：\n5\n解析：3 和 6 能被 3 整除，会执行 continue；只累加 1 和 4，所以 total 为 5。"
+            },
+            {
+                topic: "Java语言基础",
+                type: "选择题",
+                title: "Q07 数组与自增运算",
+                text: "已知 int[] nums = {4, 7, 9}; int i = 0; 执行 nums[++i] = nums[i] + nums[i + 1]; 后，nums[1] 的值是（  ）。",
+                options: ["A. 7", "B. 13", "C. 16", "D. 9"],
+                note: "先判断 ++i 后 i 的值，再代入数组下标计算赋值右侧表达式。",
+                answer: "答案：C\n解析：++i 先使 i 变为 1，因此左侧是 nums[1]；右侧 nums[i] + nums[i + 1] 即 nums[1] + nums[2]，结果为 7 + 9 = 16。"
+            },
+            {
+                topic: "类和对象",
+                type: "选择题",
+                title: "Q08 方法重载",
+                text: "同一个类中多个方法名称相同，但参数列表不同，这种现象称为（  ）。",
+                options: ["A. 方法重载", "B. 方法重写", "C. 自动装箱", "D. 异常传播"],
+                note: "判断重载只看方法名相同、参数列表不同。",
+                answer: "答案：A\n解析：同类中方法名相同但参数个数、类型或顺序不同，称为方法重载。重写发生在继承关系中。"
+            },
+            {
+                topic: "类和对象",
+                type: "程序填空",
+                title: "Q09 构造方法与成员方法",
+                text: "根据输出结果补全程序。\n输出：\nJava:36",
+                code: "class Course {\n    private String name;\n    private int hours;\n\n    public Course(String name, int hours) {\n        this.name = ________;\n        this.hours = ________;\n    }\n\n    public void addHours(int n) {\n        hours += ________;\n    }\n\n    public String info() {\n        return name + \":\" + hours;\n    }\n}\n\npublic class Test {\n    public static void main(String[] args) {\n        Course c = new Course(\"Java\", 32);\n        c.addHours(4);\n        System.out.println(c.________());\n    }\n}",
+                note: "先完成构造方法赋值，再看成员方法如何修改对象状态。",
+                answer: "依次填写：\nname\nhours\nn\ninfo\n解析：构造方法把参数保存到成员变量；addHours(4) 让 hours 从 32 变为 36；info 方法返回 Java:36。"
+            },
+            {
+                topic: "类和对象",
+                type: "阅读程序写结果",
+                title: "Q10 对象参数",
+                text: "写出下面程序的输出结果。",
+                code: "class Box {\n    int count;\n    Box(int count) {\n        this.count = count;\n    }\n}\n\npublic class TestObject {\n    static void change(Box b) {\n        b.count += 3;\n        b = new Box(9);\n        b.count++;\n    }\n\n    public static void main(String[] args) {\n        Box x = new Box(2);\n        change(x);\n        System.out.println(x.count);\n    }\n}",
+                note: "方法参数 b 起初指向同一对象；重新给 b 赋新对象不会改变 main 中 x 的指向。",
+                answer: "输出：\n5\n解析：b.count += 3 修改了 x 指向的对象，count 从 2 变为 5；之后 b 指向新 Box，不影响 x。"
+            },
+            {
+                topic: "类和对象",
+                type: "选择题",
+                title: "Q11 封装访问",
+                text: "某个成员变量被 private 修饰后，外部类通常应通过什么方式安全访问它（  ）。",
+                options: ["A. 直接使用对象名.变量名", "B. 通过公开的 getter 或 setter 方法", "C. 使用 import 语句", "D. 使用 break 语句"],
+                note: "private 不是不能访问，而是不能从外部直接访问。",
+                answer: "答案：B\n解析：private 成员通常通过 public getter/setter 间接访问，这体现封装和访问控制。"
+            },
+            {
+                topic: "继承",
+                type: "选择题",
+                title: "Q12 方法重写判断",
+                text: "阅读下面程序，判断编译结果是（  ）。",
+                code: "class Parent {\n    void print(int n) {\n        System.out.println(\"P\" + n);\n    }\n}\n\nclass Child extends Parent {\n    @Override\n    void print(String n) {\n        System.out.println(\"C\" + n);\n    }\n}",
+                options: ["A. 编译通过，Child 正确重写了 print 方法", "B. 编译通过，但运行时才会报错", "C. 编译失败，因为参数列表不同，不构成重写", "D. 编译失败，因为子类不能定义 print 方法"],
+                note: "判断重写要看方法名和参数列表是否一致；@Override 会让编译器检查这一点。",
+                answer: "答案：C\n解析：父类方法参数是 int，子类方法参数是 String，参数列表不同，属于重载而不是重写；加上 @Override 后编译器会报错。"
+            },
+            {
+                topic: "继承",
+                type: "选择题",
+                title: "Q13 构造链",
+                text: "创建子类对象时，若构造方法中没有显式调用父类构造方法，系统通常会先尝试调用父类的（  ）。",
+                options: ["A. private 方法", "B. 无参数构造方法", "C. main 方法", "D. toString 字段"],
+                note: "记住一句话：创建子类对象时，父类构造先执行。",
+                answer: "答案：B\n解析：子类构造方法没有显式写出父类构造调用时，编译器会默认尝试调用父类无参数构造方法。"
+            },
+            {
+                topic: "继承",
+                type: "程序填空",
+                title: "Q14 抽象类实现",
+                text: "补全程序，使其输出：\nCircle:9.0",
+                code: "abstract class Figure {\n    abstract double area();\n}\n\nclass Circle extends Figure {\n    private double r;\n    public Circle(double r) {\n        this.r = r;\n    }\n    public double ________() {\n        return r * r;\n    }\n}\n\npublic class Test {\n    public static void main(String[] args) {\n        Figure f = new ________(3);\n        System.out.println(\"Circle:\" + f.________());\n    }\n}",
+                note: "继承关系已经给出，重点补抽象方法实现和对象创建位置。",
+                answer: "依次填写：\narea\nCircle\narea\n解析：Circle 实现抽象方法 area；Figure f = new Circle(3) 体现父类引用指向子类对象。"
+            },
+            {
+                topic: "继承",
+                type: "阅读程序写结果",
+                title: "Q15 动态绑定与引用修改",
+                text: "写出下面程序的输出结果。",
+                code: "class Notice {\n    String title;\n\n    Notice(String title) {\n        this.title = title;\n    }\n\n    void show() {\n        System.out.println(\"Notice:\" + title);\n    }\n}\n\nclass EmailNotice extends Notice {\n    int count;\n\n    EmailNotice(String title, int count) {\n        super(title);\n        this.count = count;\n    }\n\n    void add() {\n        count += 2;\n    }\n\n    void show() {\n        System.out.println(\"Email:\" + title + \":\" + count);\n    }\n}\n\npublic class TestExt {\n    public static void main(String[] args) {\n        Notice n = new EmailNotice(\"Exam\", 1);\n        EmailNotice e = (EmailNotice) n;\n        e.add();\n        e.title = \"Review\";\n        n.show();\n    }\n}",
+                note: "n 和 e 指向同一个 EmailNotice 对象；字段修改会影响同一对象，n.show() 按运行时类型动态绑定到子类方法。",
+                answer: "输出：\nEmail:Review:3\n解析：n 实际指向 EmailNotice 对象，强制转换后的 e 与 n 指向同一对象。e.add() 使 count 从 1 变为 3，e.title 改为 Review；n.show() 动态绑定到 EmailNotice 的 show 方法。"
+            },
+            {
+                topic: "异常",
+                type: "选择题",
+                title: "Q16 受检异常",
+                text: "下列哪种情况通常需要显式处理或声明可能抛出的受检异常（  ）。",
+                options: ["A. 打开文件进行读写", "B. 两个 int 相加", "C. 访问对象的 public 方法", "D. 给 boolean 变量赋值"],
+                note: "看到文件读写操作，要想到 IOException 这类受检异常。",
+                answer: "答案：A\n解析：文件读写可能因为路径、权限等原因失败，通常需要捕获或声明 IOException；普通 int 运算不需要。"
+            },
+            {
+                topic: "异常",
+                type: "选择题",
+                title: "Q17 catch顺序",
+                text: "如果多个 catch 同时可能匹配同一种异常，较具体的异常类型通常应写在（  ）。",
+                options: ["A. 较通用异常类型之后", "B. 较通用异常类型之前", "C. finally 块之后", "D. 类声明之外"],
+                note: "口诀：先具体，后一般。否则具体异常分支可能永远到不了。",
+                answer: "答案：B\n解析：多个 catch 从上到下匹配，子类异常应写在父类异常之前，否则会出现不可达代码问题。"
+            },
+            {
+                topic: "异常",
+                type: "阅读程序写结果",
+                title: "Q18 异常捕获结构",
+                text: "写出下面程序的输出结果。",
+                code: "public class Test {\n    public static void main(String[] args) {\n        try {\n            String text = null;\n            System.out.println(text.length());\n            System.out.println(\"ok\");\n        } catch (NullPointerException e) {\n            System.out.println(\"empty text\");\n        } finally {\n            System.out.println(\"finish check\");\n        }\n    }\n}",
+                note: "先判断异常发生位置；异常后的同一 try 块语句不会继续执行，finally 仍会执行。",
+                answer: "输出：\nempty text\nfinish check\n解析：text 为 null，调用 length() 时抛出 NullPointerException，进入 catch 输出 empty text；try 中的 ok 不会输出；finally 输出 finish check。"
+            },
+            {
+                topic: "实用类",
+                type: "阅读程序写结果",
+                title: "Q19 String方法",
+                text: "写出下面程序的输出结果。",
+                code: "public class TestText {\n    public static void main(String[] args) {\n        String text = \"  Java-Exam  \";\n        String clean = text.trim();\n        String left = clean.substring(0, 4);\n        String right = clean.substring(clean.indexOf(\"-\") + 1);\n        System.out.println(left.toLowerCase() + \":\" + right.length());\n        System.out.println(clean.startsWith(\"Java\"));\n    }\n}",
+                note: "分步判断 trim、substring、indexOf、length 和 startsWith 的结果。",
+                answer: "输出：\njava:4\ntrue\n解析：trim 后为 \"Java-Exam\"；left 是 \"Java\"，right 是 \"Exam\"，长度为 4；clean 以 \"Java\" 开头。"
+            },
+            {
+                topic: "实用类",
+                type: "选择题",
+                title: "Q20 包装类转换",
+                text: "下列语句执行后，变量 n 的值是（  ）。\nint n = Integer.valueOf(\"15\");",
+                options: ["A. 0", "B. 5", "C. 15", "D. \"15\""],
+                note: "注意这里结果是 int 数值 15，不是字符串 \"15\"。",
+                answer: "答案：C\n解析：Integer.valueOf(\"15\") 将字符串形式的整数转换为 Integer，赋给 int 时发生自动拆箱。"
+            },
+            {
+                topic: "实用类",
+                type: "阅读程序写结果",
+                title: "Q21 StringBuilder修改",
+                text: "写出下面程序的输出结果。",
+                code: "public class TestUtil {\n    public static void main(String[] args) {\n        StringBuilder sb = new StringBuilder(\"classroom\");\n        sb.replace(0, 5, \"Java\");\n        sb.deleteCharAt(4);\n        sb.insert(4, \"-\");\n        sb.append(sb.length());\n        System.out.println(sb.toString());\n    }\n}",
+                note: "逐步跟踪 StringBuilder 的当前内容，注意 replace 的结束下标不包含在内。",
+                answer: "输出：\nJava-oom8\n解析：replace(0, 5, \"Java\") 将 class 替换为 Java，得到 Javaroom；deleteCharAt(4) 删除 r，得到 Javaoom；insert(4, \"-\") 得到 Java-oom；此时长度为 8，append(8) 后输出 Java-oom8。"
+            },
+            {
+                topic: "JCF框架",
+                type: "选择题",
+                title: "Q22 Queue特点",
+                text: "在 Java 集合框架中，Queue 接口最常用于表示哪类数据结构（  ）。",
+                options: ["A. 先进先出的队列", "B. 键值映射表", "C. 不可变字符串", "D. 文件路径"],
+                note: "Queue 的关键词是队列，通常按先进先出理解。",
+                answer: "答案：A\n解析：Queue 常表示队列结构，典型访问顺序是 FIFO，先进先出。"
+            },
+            {
+                topic: "JCF框架",
+                type: "选择题",
+                title: "Q23 Collections工具类",
+                text: "若要反转 List 中元素的排列顺序，可以使用的方法是（  ）。",
+                options: ["A. Collections.reverse(list)", "B. list.keySet()", "C. Math.reverse(list)", "D. Arrays.length(list)"],
+                note: "Collections 是集合工具类；Arrays 是数组工具类。",
+                answer: "答案：A\n解析：Collections.reverse(list) 可反转 List 中元素顺序；keySet 属于 Map，Arrays.length 不是合法方法。"
+            },
+            {
+                topic: "JCF框架",
+                type: "阅读程序写结果",
+                title: "Q24 List下标增删",
+                text: "写出下面程序的输出结果。",
+                code: "import java.util.*;\n\npublic class TestJcf {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>();\n        list.add(\"A\");\n        list.add(\"B\");\n        list.add(\"C\");\n        list.remove(1);\n        list.add(1, \"D\");\n        for (String s : list) {\n            System.out.print(s);\n        }\n    }\n}",
+                note: "List 的下标从 0 开始；remove(1) 删除原来的第 2 个元素，add(1, \"D\") 在该位置插入新元素。",
+                answer: "输出：\nADC\n解析：初始列表为 A、B、C；remove(1) 删除 B，变为 A、C；add(1, \"D\") 后变为 A、D、C，所以输出 ADC。"
+            },
+            {
+                topic: "JCF框架",
+                type: "程序填空",
+                title: "Q25 Iterator遍历集合",
+                text: "补全程序，使用迭代器输出集合元素。\n输出：\nA B C",
+                code: "import java.util.*;\n\npublic class Test {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>();\n        list.add(\"A\");\n        list.add(\"B\");\n        list.add(\"C\");\n        Iterator<String> it = list.________();\n        while (it.________()) {\n            System.out.print(it.________() + \" \");\n        }\n    }\n}",
+                note: "Iterator 是集合遍历的一种通用方式：先取得迭代器，再判断是否有下一个元素，最后取出元素。",
+                answer: "依次填写：\niterator\nhasNext\nnext\n解析：list.iterator() 得到迭代器；hasNext() 判断是否还有元素；next() 取出当前元素并移动到下一个。"
+            },
+            {
+                topic: "泛型",
+                type: "选择题",
+                title: "Q26 泛型集合",
+                text: "已知 List<String> names = new ArrayList<>(); 下列哪条语句能够正确加入一个元素（  ）。",
+                options: ["A. names.add(\"Java\")", "B. names.add(100)", "C. names.put(\"Java\")", "D. names.length()"],
+                note: "List<String> 表示集合中元素应为 String 类型，添加元素使用 add 方法。",
+                answer: "答案：A\n解析：names 是 List<String>，只能添加字符串元素；add 是 List 添加元素的方法。"
+            },
+            {
+                topic: "泛型",
+                type: "程序填空",
+                title: "Q27 泛型方法补全",
+                text: "补全程序，使其输出：\nJava\n90",
+                code: "public class Test {\n    public static <T> ________ first(T[] data) {\n        return ________;\n    }\n\n    public static void main(String[] args) {\n        String[] names = {\"Java\", \"OOP\"};\n        Integer[] scores = {90, 80};\n        System.out.println(Test.________(names));\n        System.out.println(Test.________(scores));\n    }\n}",
+                note: "泛型方法可以让同一个方法处理不同元素类型的数组，返回值类型随实参类型变化。",
+                answer: "依次填写：\nT\ndata[0]\nfirst\nfirst\n解析：<T> 声明方法级泛型参数，返回值类型为 T；first(names) 返回第一个字符串 Java，first(scores) 返回第一个整数 90。"
+            },
+            {
+                topic: "输入输出流",
+                type: "选择题",
+                title: "Q28 try-with-resources",
+                text: "try-with-resources 语句的主要好处是（  ）。",
+                options: ["A. 自动关闭实现 AutoCloseable 的资源", "B. 自动启动新线程", "C. 自动排序集合元素", "D. 自动把 int 转换为 boolean"],
+                note: "try-with-resources 的核心价值是自动关闭资源。",
+                answer: "答案：A\n解析：try-with-resources 会在语句结束时自动关闭实现 AutoCloseable 的资源，减少忘记 close 的问题。"
+            },
+            {
+                topic: "输入输出流",
+                type: "选择题",
+                title: "Q29 IO包",
+                text: "在 Java 程序中使用常见文件读写类时，通常需要导入的包是（  ）。",
+                options: ["A. java.io", "B. java.time", "C. java.awt", "D. java.net"],
+                note: "看到文件读写相关类，先想到 java.io 包。",
+                answer: "答案：A\n解析：java.io 包中提供了多种输入输出相关类；java.time 用于日期时间，java.awt 用于图形界面，java.net 用于网络。"
+            },
+            {
+                topic: "输入输出流",
+                type: "程序填空",
+                title: "Q30 字节输出流",
+                text: "补全程序，将字节数组写入 data.bin。",
+                code: "import java.io.*;\n\npublic class Test {\n    public static void main(String[] args) {\n        byte[] data = {65, 66, 67};\n        try (\n            OutputStream out = new ________(\"data.bin\")\n        ) {\n            out.________(data);\n        } ________ (IOException e) {\n            e.printStackTrace();\n        }\n    }\n}",
+                note: "写二进制字节用 OutputStream；FileOutputStream 面向文件输出；write 写出字节数组。",
+                answer: "依次填写：\nFileOutputStream\nwrite\ncatch\n解析：FileOutputStream 是文件字节输出流；write(data) 写出整个字节数组；IO 操作用 catch 处理 IOException。"
+            },
+            {
+                topic: "多线程",
+                type: "选择题",
+                title: "Q31 sleep方法",
+                text: "Thread.sleep(1000) 通常表示（  ）。",
+                options: ["A. 让当前线程暂停约 1 秒", "B. 永久停止所有线程", "C. 创建一个文件", "D. 把集合转换为数组"],
+                note: "sleep 影响当前正在执行的线程，不会永久停止所有线程。",
+                answer: "答案：A\n解析：Thread.sleep(1000) 让当前线程暂停约 1000 毫秒，之后仍可继续运行。"
+            },
+            {
+                topic: "多线程",
+                type: "选择题",
+                title: "Q32 线程基础概念",
+                text: "下列哪项最符合 Java 中线程的含义（  ）。",
+                options: ["A. 程序中一条可以独立执行的执行路径", "B. 专门保存键值对的数据结构", "C. 用于表示文件路径的类", "D. 只能保存字符串的数组"],
+                note: "线程是程序执行的基本单位之一，可理解为程序中的一条执行路径。",
+                answer: "答案：A\n解析：线程表示程序中的一条执行路径，可与其他线程并发执行。"
+            },
+            {
+                topic: "综合程序设计",
+                type: "程序设计题",
+                title: "Q33 程序设计",
+                text: "设计一个校园通知发送程序。\n程序输出结果如下：\nEmail[teacher@school.com]:Exam\nSMS[13800000000]:Exam\n要求：\n1. 定义接口 Notifier，包含 send(String message) 方法。\n2. 定义 EmailNotifier 类实现 Notifier，包含 String address 属性和构造方法。\n3. 定义 SmsNotifier 类实现 Notifier，包含 String phone 属性和构造方法。\n4. EmailNotifier 的 send 按 Email[address]:message 格式输出。\n5. SmsNotifier 的 send 按 SMS[phone]:message 格式输出。\n6. 在测试类中创建 List<Notifier>，依次放入 EmailNotifier(\"teacher@school.com\") 和 SmsNotifier(\"13800000000\")。\n7. 遍历集合并调用 send(\"Exam\") 方法，体现接口、多态、集合和泛型。",
+                note: "先拆结构再写代码：接口、两个实现类、固定输出格式、List<Notifier>、遍历调用。",
+                answer: "参考答案：\nimport java.util.*;\n\ninterface Notifier {\n    void send(String message);\n}\n\nclass EmailNotifier implements Notifier {\n    private String address;\n\n    public EmailNotifier(String address) {\n        this.address = address;\n    }\n\n    public void send(String message) {\n        System.out.println(\"Email[\" + address + \"]:\" + message);\n    }\n}\n\nclass SmsNotifier implements Notifier {\n    private String phone;\n\n    public SmsNotifier(String phone) {\n        this.phone = phone;\n    }\n\n    public void send(String message) {\n        System.out.println(\"SMS[\" + phone + \"]:\" + message);\n    }\n}\n\npublic class Test {\n    public static void main(String[] args) {\n        List<Notifier> list = new ArrayList<>();\n        list.add(new EmailNotifier(\"teacher@school.com\"));\n        list.add(new SmsNotifier(\"13800000000\"));\n\n        for (Notifier notifier : list) {\n            notifier.send(\"Exam\");\n        }\n    }\n}"
+            }
+        ];
+
+        /* ===========================================
+           HTML HELPERS
+           =========================================== */
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        function highlightJavaLine(line) {
+            const keywords = "abstract|boolean|break|catch|char|class|double|else|extends|final|finally|for|if|implements|import|int|interface|new|null|private|protected|public|return|static|String|super|this|throw|try|void|while";
+            const types = "ArrayDeque|ArrayList|Box|Child|Course|EmailNotice|EmailNotifier|Exception|File|FileOutputStream|Figure|Integer|List|Math|Notice|Notifier|NumberFormatException|OutputStream|Parent|PrintWriter|Queue|SmsNotifier|StringBuilder|System|Test|TestExt|Thread|Worker";
+            const tokenPattern = new RegExp(`\\b(${keywords})\\b|\\b(${types})\\b|\\b(\\d+(?:\\.\\d+)?)\\b`, "g");
+            const highlightPlain = value => escapeHtml(value).replace(tokenPattern, (match, kw, type, num) => {
+                if (kw) return `<span class="kw">${match}</span>`;
+                if (type) return `<span class="type">${match}</span>`;
+                if (num) return `<span class="num">${match}</span>`;
+                return match;
+            });
+
+            let html = "";
+            let buffer = "";
+            let i = 0;
+            while (i < line.length) {
+                if (line[i] === "/" && line[i + 1] === "/") {
+                    html += highlightPlain(buffer);
+                    html += `<span class="comment">${escapeHtml(line.slice(i))}</span>`;
+                    return html;
+                }
+                if (line[i] === "\"") {
+                    html += highlightPlain(buffer);
+                    buffer = "";
+                    let j = i + 1;
+                    while (j < line.length) {
+                        if (line[j] === "\\" && j + 1 < line.length) {
+                            j += 2;
+                            continue;
+                        }
+                        if (line[j] === "\"") {
+                            j++;
+                            break;
+                        }
+                        j++;
+                    }
+                    html += `<span class="str">${escapeHtml(line.slice(i, j))}</span>`;
+                    i = j;
+                    continue;
+                }
+                buffer += line[i];
+                i++;
+            }
+            return html + highlightPlain(buffer);
+        }
+
+        function renderCodeListing(code) {
+            return String(code).split("\n").map((line, index) => `
+                <div class="code-line">
+                    <span class="line-number" aria-hidden="true">${index + 1}</span>
+                    <code class="code-text">${highlightJavaLine(line)}</code>
+                </div>
+            `).join("");
+        }
+
+        function renderCodeBlock(q, index) {
+            if (!q.code) return "";
+            const codeId = `code-${index}`;
+            return `
+                <div class="code-shell" data-code-id="${codeId}">
+                    <div class="code-toolbar">
+                        <span class="code-label">程序代码</span>
+                        <button class="code-full-btn" type="button" data-code-id="${codeId}" onclick="openCodeFullscreen('${codeId}')">代码全屏</button>
+                    </div>
+                    <div class="code-listing" data-code-body="${codeId}" data-raw-code="${escapeHtml(q.code)}">${renderCodeListing(q.code)}</div>
+                </div>
+            `;
+        }
+
+        function looksLikeJavaCodeLine(line) {
+            const trimmed = line.trim();
+            if (!trimmed) return false;
+            return /^(import|class|interface|public|private|protected|abstract|static|void|int|double|boolean|String|List<|Map<|Set<|for\s*\(|if\s*\(|while\s*\(|try\s*\{|catch\s*\(|return|throw|new\s+)/.test(trimmed)
+                || /[{};]$/.test(trimmed)
+                || /\bextends\b|\bimplements\b|\bArrayList\b|\bSystem\.out\b/.test(trimmed);
+        }
+
+        function compactAnswerCode(code) {
+            const lines = String(code).trim().split("\n");
+            const compacted = [];
+            lines.forEach((line, index) => {
+                const trimmed = line.trim();
+                if (trimmed) {
+                    compacted.push(line);
+                    return;
+                }
+                const previous = lines[index - 1]?.trim() || "";
+                const next = lines[index + 1]?.trim() || "";
+                const keepBetweenClasses = previous === "}" && /^(class|public class|abstract class|interface)\b/.test(next);
+                const lastKeptBlank = compacted[compacted.length - 1]?.trim() === "";
+                if (keepBetweenClasses && !lastKeptBlank) compacted.push("");
+            });
+            return compacted.join("\n");
+        }
+
+        function renderAnswerContent(answer) {
+            const fullAnswer = String(answer);
+            const fullCodeMatch = fullAnswer.match(/^(参考答案：)\n([\s\S]*\b(class|interface|import)\b[\s\S]*)$/);
+            if (fullCodeMatch) {
+                return `
+                    <div class="answer-text-block">${escapeHtml(fullCodeMatch[1])}</div>
+                    <div class="answer-code-shell">
+                        <div class="code-toolbar"><span class="code-label">参考代码</span></div>
+                        <div class="code-listing">${renderCodeListing(compactAnswerCode(fullCodeMatch[2]))}</div>
+                    </div>
+                `;
+            }
+            const fillAnswerMatch = fullAnswer.match(/^(依次填写：)\n([\s\S]*?)\n(解析：[\s\S]*)$/);
+            if (fillAnswerMatch) {
+                return `
+                    <div class="answer-text-block">${escapeHtml(fillAnswerMatch[1])}</div>
+                    <div class="answer-code-shell">
+                        <div class="code-toolbar"><span class="code-label">参考代码</span></div>
+                        <div class="code-listing">${renderCodeListing(fillAnswerMatch[2].trim())}</div>
+                    </div>
+                    <div class="answer-text-block">${escapeHtml(fillAnswerMatch[3])}</div>
+                `;
+            }
+            const lines = String(answer).split("\n");
+            const chunks = [];
+            let textBuffer = [];
+            let codeBuffer = [];
+
+            const flushText = () => {
+                if (textBuffer.length) {
+                    chunks.push({ type: "text", value: textBuffer.join("\n").trim() });
+                    textBuffer = [];
+                }
+            };
+            const flushCode = () => {
+                if (codeBuffer.length) {
+                    chunks.push({ type: "code", value: codeBuffer.join("\n").trim() });
+                    codeBuffer = [];
+                }
+            };
+
+            lines.forEach(line => {
+                if (looksLikeJavaCodeLine(line)) {
+                    flushText();
+                    codeBuffer.push(line);
+                } else {
+                    flushCode();
+                    textBuffer.push(line);
+                }
+            });
+            flushText();
+            flushCode();
+
+            return chunks.map(chunk => {
+                if (!chunk.value) return "";
+                if (chunk.type === "code") {
+                    return `
+                        <div class="answer-code-shell">
+                            <div class="code-toolbar"><span class="code-label">参考代码</span></div>
+                            <div class="code-listing">${renderCodeListing(compactAnswerCode(chunk.value))}</div>
+                        </div>
+                    `;
+                }
+                return `<div class="answer-text-block">${escapeHtml(chunk.value)}</div>`;
+            }).join("");
+        }
+
+        const scoringSlide = {
+            kind: "score",
+            badge: "得分点",
+            topic: "综合题拆解",
+            title: "Q33 得分点拆解",
+            rows: [
+                ["2分", "接口 Notifier：send(String message) 方法声明正确。"],
+                ["3分", "EmailNotifier 和 SmsNotifier 正确实现接口，并通过构造方法保存 address、phone。"],
+                ["3分", "send 方法分别按 Email[address]:message 和 SMS[phone]:message 格式输出。"],
+                ["2分", "测试类使用 List<Notifier>，按顺序加入指定邮箱和手机号两个通知对象。"],
+                ["2分", "使用增强 for 遍历集合并调用 send(\"Exam\")，最终输出与题目完全一致。"]
+            ],
+            sideTitle: "完成路径",
+            side: [
+                "先圈出接口、实现类、字段和方法",
+                "再写两个实现类的字段、构造方法和固定格式输出",
+                "最后核对 main 方法中的对象参数、顺序和遍历调用"
+            ]
+        };
+
+        function buildDeckSlides() {
+            const slides = [...introSlides];
+            questions.forEach((question, questionIndex) => {
+                const section = sectionSlides.find(item => item.before === question.title);
+                if (section) slides.push({ ...section, kind: "section" });
+                slides.push({ ...question, kind: "question", questionIndex });
+                if (question.title === "Q33 程序设计") slides.push(scoringSlide);
+            });
+            return slides;
+        }
+
+        const deckSlides = buildDeckSlides();
+
+        function renderList(items) {
+            return `<ul>${items.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+        }
+
+        function renderTalkSlide(slide, index) {
+            const body = Array.isArray(slide.body) ? slide.body.map(item => `<p>${escapeHtml(item)}</p>`).join("") : "";
+            const logo = index === 0 ? `<img class="school-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAhkAAAByCAYAAAD+tsM7AAAACXBIWXMAABYlAAAWJQFJUiTwAAAFyWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgOS4wLWMwMDAgNzkuMTcxYzI3ZiwgMjAyMi8wOC8xNi0xODowMjo0MyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDI0LjAgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyNS0wNC0wN1QwOToxOTo1MSswODowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjUtMDQtMDdUMDk6NDE6NTArMDg6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjUtMDQtMDdUMDk6NDE6NTArMDg6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM5YzBiZDk3LTc3YjUtMjg0MC04YzgwLTg5ZjA3M2QwZTM0NCIgeG1wTU06RG9jdW1lbnRJRD0i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" alt="河北师范大学">` : "";
+            return `
+                <section class="slide talk-slide${index === 0 ? " active visible" : ""}">
+                    <div class="sheet">
+                        <header class="topbar reveal">
+                            <div class="badge">${escapeHtml(slide.badge)}</div>
+                            <div><div class="topic" data-editable="true">${escapeHtml(slide.topic)}</div></div>
+                            <div class="brand-meta">
+                                ${logo}
+                                <div class="meta">复习<br>Java OOP</div>
+                            </div>
+                        </header>
+                        <div class="talk-body reveal">
+                            <article class="talk-main">
+                                <h1 data-editable="true">${escapeHtml(slide.title)}</h1>
+                                <div data-editable="true">${body}</div>
+                            </article>
+                            <aside class="talk-side">
+                                <div class="talk-side-title">${escapeHtml(slide.sideTitle)}</div>
+                                <div data-editable="true">${renderList(slide.side)}</div>
+                            </aside>
+                        </div>
+                        <footer class="footer reveal">
+                            <div class="page-no">${index + 1} / ${deckSlides.length}</div>
+                        </footer>
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderRouteSlide(slide, index) {
+            const routeItems = slide.body.map(item => `
+                <div class="route-item">
+                    <div class="route-kicker">${escapeHtml(item.kicker)}</div>
+                    <div class="route-title">${escapeHtml(item.title)}</div>
+                </div>
+            `).join("");
+            return `
+                <section class="slide talk-slide${index === 0 ? " active visible" : ""}">
+                    <div class="sheet">
+                        <header class="topbar reveal">
+                            <div class="badge">${escapeHtml(slide.badge)}</div>
+                            <div><div class="topic" data-editable="true">${escapeHtml(slide.topic)}</div></div>
+                            <div class="brand-meta">
+                                <div class="meta">复习路线<br>Java OOP</div>
+                            </div>
+                        </header>
+                        <div class="talk-body reveal">
+                            <article class="talk-main">
+                                <h1 data-editable="true">${escapeHtml(slide.title)}</h1>
+                                <div class="route-grid" data-editable="true">${routeItems}</div>
+                            </article>
+                            <aside class="talk-side">
+                                <div class="talk-side-title">${escapeHtml(slide.sideTitle)}</div>
+                                <div data-editable="true">${renderList(slide.side)}</div>
+                            </aside>
+                        </div>
+                        <footer class="footer reveal">
+                            <div class="page-no">${index + 1} / ${deckSlides.length}</div>
+                        </footer>
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderSectionSlide(slide, index) {
+            return renderTalkSlide(slide, index).replace('class="slide talk-slide', 'class="slide talk-slide section-slide');
+        }
+
+        function renderScoreSlide(slide, index) {
+            const rows = slide.rows.map(row => `
+                <div class="score-row">
+                    <div class="score-points">${escapeHtml(row[0])}</div>
+                    <div class="score-text">${escapeHtml(row[1])}</div>
+                </div>
+            `).join("");
+            return `
+                <section class="slide talk-slide${index === 0 ? " active visible" : ""}">
+                    <div class="sheet">
+                        <header class="topbar reveal">
+                            <div class="badge">${escapeHtml(slide.badge)}</div>
+                            <div><div class="topic" data-editable="true">${escapeHtml(slide.topic)}</div></div>
+                            <div class="brand-meta">
+                                <div class="meta">得分点<br>Java OOP</div>
+                            </div>
+                        </header>
+                        <div class="talk-body reveal">
+                            <article class="talk-main">
+                                <h1 data-editable="true">${escapeHtml(slide.title)}</h1>
+                                <div class="score-list" data-editable="true">${rows}</div>
+                            </article>
+                            <aside class="talk-side">
+                                <div class="talk-side-title">${escapeHtml(slide.sideTitle)}</div>
+                                <div data-editable="true">${renderList(slide.side)}</div>
+                            </aside>
+                        </div>
+                        <footer class="footer reveal">
+                            <div class="page-no">${index + 1} / ${deckSlides.length}</div>
+                        </footer>
+                    </div>
+                </section>
+            `;
+        }
+
+        function displayQuestionTitle(title) {
+            const match = title.match(/^Q\d+/);
+            return match ? match[0] : title;
+        }
+
+        function renderQuestion(q, index) {
+            const options = q.options ? `<div class="options">${q.options.map(option => `<div class="option">${escapeHtml(option)}</div>`).join("")}</div>` : "";
+            const code = renderCodeBlock(q, index);
+            const programClass = q.type === "程序设计题" ? " program" : "";
+            return `
+                <section class="slide question-slide${index === 0 ? " active visible" : ""}">
+                    <div class="sheet">
+                        <header class="topbar reveal">
+                            <div class="badge">${String(index + 1).padStart(2, "0")}</div>
+                            <div>
+                                <div class="topic" data-editable="true">${escapeHtml(q.topic)}</div>
+                            </div>
+                            <div class="brand-meta">
+                                <div class="meta">${escapeHtml(q.type)}<br>Java OOP</div>
+                            </div>
+                        </header>
+                        <div class="body reveal">
+                            <article class="prompt${programClass}">
+                                <h1 data-editable="true">${escapeHtml(displayQuestionTitle(q.title))}</h1>
+                                <div class="question-text" data-editable="true">${escapeHtml(q.text)}</div>
+                                ${options}
+                                ${code}
+                            </article>
+                            <aside class="side">
+                                <section class="note">
+                                    <div class="note-label">考核提示</div>
+                                    <button class="hint-button" type="button" aria-expanded="false" onclick="toggleHint(this)">查看提示</button>
+                                    <p data-editable="true" data-hint-content hidden>${escapeHtml(q.note)}</p>
+                                </section>
+                                <section class="answer-card">
+                                    <button class="answer-button" type="button" onclick="openAnswerOverlay(${q.questionIndex})">查看答案</button>
+                                    <p>先独立作答，再对照答案和解析。</p>
+                                </section>
+                            </aside>
+                        </div>
+                        <footer class="footer reveal">
+                            <div class="page-no">${index + 1} / ${deckSlides.length}</div>
+                        </footer>
+                    </div>
+                </section>
+            `;
+        }
+
+        function toggleHint(button) {
+            const note = button.closest(".note");
+            const content = note?.querySelector("[data-hint-content]");
+            if (!content) return;
+            const shouldShow = content.hasAttribute("hidden");
+            if (shouldShow) {
+                content.removeAttribute("hidden");
+                button.textContent = "隐藏提示";
+                button.setAttribute("aria-expanded", "true");
+            } else {
+                content.setAttribute("hidden", "");
+                button.textContent = "查看提示";
+                button.setAttribute("aria-expanded", "false");
+            }
+        }
+
+        function renderSlide(slide, index) {
+            if (slide.kind === "route") return renderRouteSlide(slide, index);
+            if (slide.kind === "section") return renderSectionSlide(slide, index);
+            if (slide.kind === "score") return renderScoreSlide(slide, index);
+            if (slide.kind === "talk") return renderTalkSlide(slide, index);
+            return renderQuestion(slide, index);
+        }
+
+        document.getElementById("deckStage").innerHTML = deckSlides.map(renderSlide).join("");
+
+        function openCodeFullscreen(codeId) {
+            const overlay = document.getElementById("codeOverlay");
+            const overlayBody = document.getElementById("codeOverlayBody");
+            const overlayTitle = document.getElementById("codeOverlayTitle");
+            const body = document.querySelector(`[data-code-body="${codeId}"]`);
+            if (!body) return;
+            overlayTitle.textContent = document.querySelector(".slide.active h1")?.textContent || "程序代码";
+            overlayBody.innerHTML = body.innerHTML;
+            overlay.classList.add("open");
+            overlay.setAttribute("aria-hidden", "false");
+        }
+
+        async function closeCodeFullscreen() {
+            const overlay = document.getElementById("codeOverlay");
+            const overlayBody = document.getElementById("codeOverlayBody");
+            overlay.classList.remove("open");
+            overlay.setAttribute("aria-hidden", "true");
+            overlayBody.innerHTML = "";
+            if (document.fullscreenElement === overlay) await document.exitFullscreen?.();
+        }
+
+        window.openCodeFullscreen = openCodeFullscreen;
+        window.closeCodeFullscreen = closeCodeFullscreen;
+        window.toggleHint = toggleHint;
+
+        function openAnswerOverlay(index) {
+            const overlay = document.getElementById("answerOverlay");
+            const title = document.getElementById("answerOverlayTitle");
+            const body = document.getElementById("answerOverlayBody");
+            const question = questions[index];
+            if (!question) return;
+            title.textContent = `${displayQuestionTitle(question.title)} 参考答案`;
+            body.innerHTML = renderAnswerContent(question.answer);
+            overlay.classList.add("open");
+            overlay.setAttribute("aria-hidden", "false");
+        }
+
+        function closeAnswerOverlay() {
+            const overlay = document.getElementById("answerOverlay");
+            const body = document.getElementById("answerOverlayBody");
+            overlay.classList.remove("open");
+            overlay.setAttribute("aria-hidden", "true");
+            body.innerHTML = "";
+        }
+
+        window.openAnswerOverlay = openAnswerOverlay;
+        window.closeAnswerOverlay = closeAnswerOverlay;
+
+        class QuestionTimer {
+            constructor() {
+                this.root = document.getElementById("questionTimer");
+                this.timeEl = document.getElementById("questionTimerTime");
+                this.pauseButton = document.getElementById("questionTimerPause");
+                this.resetButton = document.getElementById("questionTimerReset");
+                this.activeSlide = null;
+                this.baseElapsed = 0;
+                this.startedAt = 0;
+                this.intervalId = null;
+                this.running = false;
+                this.pauseButton.addEventListener("click", () => this.togglePause());
+                this.resetButton.addEventListener("click", () => this.reset());
+                this.render();
+            }
+
+            sync(slide) {
+                const isQuestion = slide?.classList.contains("question-slide");
+                this.root.classList.toggle("show", Boolean(isQuestion));
+                if (!isQuestion) {
+                    this.stop();
+                    this.activeSlide = null;
+                    return;
+                }
+                if (slide !== this.activeSlide) {
+                    this.activeSlide = slide;
+                    this.baseElapsed = 0;
+                    this.startedAt = Date.now();
+                    this.start();
+                    this.render();
+                }
+            }
+
+            elapsed() {
+                if (!this.running) return this.baseElapsed;
+                return this.baseElapsed + Date.now() - this.startedAt;
+            }
+
+            start() {
+                if (this.running) return;
+                this.running = true;
+                this.startedAt = Date.now();
+                this.intervalId = window.setInterval(() => this.render(), 250);
+                this.pauseButton.textContent = "暂停";
+            }
+
+            stop() {
+                if (this.running) {
+                    this.baseElapsed = this.elapsed();
+                }
+                this.running = false;
+                window.clearInterval(this.intervalId);
+                this.intervalId = null;
+                this.pauseButton.textContent = "继续";
+                this.render();
+            }
+
+            togglePause() {
+                if (!this.activeSlide) return;
+                this.running ? this.stop() : this.start();
+            }
+
+            reset() {
+                this.baseElapsed = 0;
+                this.startedAt = Date.now();
+                this.render();
+            }
+
+            render() {
+                const totalSeconds = Math.floor(this.elapsed() / 1000);
+                const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+                const seconds = String(totalSeconds % 60).padStart(2, "0");
+                this.timeEl.textContent = `${minutes}:${seconds}`;
+            }
+        }
+
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = Array.from(document.querySelectorAll(".slide"));
+                this.currentSlide = 0;
+                this.stage = document.getElementById("deckStage");
+                this.counter = document.getElementById("counter");
+                this.slideKey = "java-oop-review-course-current-slide-v2";
+                this.setupStageScale();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupWheelNav();
+                this.setupButtons();
+                this.setupDeckFullscreen();
+                this.setupCodeFullscreen();
+                this.questionTimer = new QuestionTimer();
+                this.showSlide(this.loadSavedSlide(), { persist: false });
+            }
+
+            loadSavedSlide() {
+                const saved = Number.parseInt(localStorage.getItem(this.slideKey), 10);
+                if (Number.isNaN(saved)) return 0;
+                return Math.max(0, Math.min(saved, this.slides.length - 1));
+            }
+
+            setupStageScale() {
+                const scale = () => {
+                    const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+                    const x = (window.innerWidth - 1920 * factor) / 2;
+                    const y = (window.innerHeight - 1080 * factor) / 2;
+                    this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+                };
+                scale();
+                window.addEventListener("resize", scale);
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener("keydown", event => {
+                    if (event.target && event.target.getAttribute("contenteditable") === "true") return;
+                    if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+                        event.preventDefault();
+                        this.next();
+                    }
+                    if (["ArrowLeft", "PageUp"].includes(event.key)) {
+                        event.preventDefault();
+                        this.prev();
+                    }
+                    if (event.key === "Home") this.showSlide(0);
+                    if (event.key === "End") this.showSlide(this.slides.length - 1);
+                });
+            }
+
+            setupTouchNav() {
+                let startX = 0;
+                let startY = 0;
+                document.addEventListener("touchstart", event => {
+                    startX = event.changedTouches[0].screenX;
+                    startY = event.changedTouches[0].screenY;
+                }, { passive: true });
+                document.addEventListener("touchend", event => {
+                    const dx = event.changedTouches[0].screenX - startX;
+                    const dy = event.changedTouches[0].screenY - startY;
+                    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+                        dx < 0 ? this.next() : this.prev();
+                    }
+                }, { passive: true });
+            }
+
+            setupWheelNav() {
+                let last = 0;
+                document.addEventListener("wheel", event => {
+                    const now = Date.now();
+                    if (now - last < 650) return;
+                    last = now;
+                    event.deltaY > 0 ? this.next() : this.prev();
+                }, { passive: true });
+            }
+
+            setupButtons() {
+                document.getElementById("prevBtn").addEventListener("click", () => this.prev());
+                document.getElementById("nextBtn").addEventListener("click", () => this.next());
+            }
+
+            setupDeckFullscreen() {
+                const button = document.getElementById("deckFullscreenBtn");
+                button.addEventListener("click", async () => {
+                    if (!document.fullscreenElement) {
+                        await document.documentElement.requestFullscreen?.();
+                        button.textContent = "退出";
+                    } else {
+                        await document.exitFullscreen?.();
+                        button.textContent = "全屏";
+                    }
+                });
+                document.addEventListener("fullscreenchange", () => {
+                    button.textContent = document.fullscreenElement ? "退出" : "全屏";
+                });
+            }
+
+            setupCodeFullscreen() {
+                const overlay = document.getElementById("codeOverlay");
+                const overlayBody = document.getElementById("codeOverlayBody");
+                const overlayTitle = document.getElementById("codeOverlayTitle");
+                const closeButton = document.getElementById("codeCloseBtn");
+                const close = async () => {
+                    overlay.classList.remove("open");
+                    overlay.setAttribute("aria-hidden", "true");
+                    overlayBody.innerHTML = "";
+                    if (document.fullscreenElement === overlay) await document.exitFullscreen?.();
+                };
+                document.addEventListener("click", async event => {
+                    const button = event.target.closest(".code-full-btn");
+                    if (!button) return;
+                    const codeId = button.getAttribute("data-code-id");
+                    const body = document.querySelector(`[data-code-body="${codeId}"]`);
+                    if (!body) return;
+                    overlayTitle.textContent = document.querySelector(".slide.active h1")?.textContent || "程序代码";
+                    overlayBody.innerHTML = body.innerHTML;
+                    overlay.classList.add("open");
+                    overlay.setAttribute("aria-hidden", "false");
+                });
+                closeButton.addEventListener("click", close);
+                document.addEventListener("keydown", event => {
+                    if (event.key === "Escape" && overlay.classList.contains("open")) {
+                        close();
+                    }
+                    if (event.key === "Escape" && document.getElementById("answerOverlay").classList.contains("open")) {
+                        closeAnswerOverlay();
+                    }
+                });
+            }
+
+            showSlide(index, options = {}) {
+                const shouldPersist = options.persist !== false;
+                this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+                this.slides.forEach((slide, i) => {
+                    slide.classList.toggle("active", i === this.currentSlide);
+                    slide.classList.toggle("visible", i === this.currentSlide);
+                });
+                this.counter.textContent = `${this.currentSlide + 1} / ${this.slides.length}`;
+                this.questionTimer.sync(this.slides[this.currentSlide]);
+                if (shouldPersist) {
+                    localStorage.setItem(this.slideKey, String(this.currentSlide));
+                }
+            }
+
+            next() { this.showSlide(this.currentSlide + 1); }
+            prev() { this.showSlide(this.currentSlide - 1); }
+        }
+
+        /* ===========================================
+           INLINE EDITING
+           =========================================== */
+        class InlineEditor {
+            constructor() {
+                this.isActive = false;
+                this.key = "java-oop-review-course-slides-v26";
+                this.toggle = document.getElementById("editToggle");
+                this.load();
+                this.setupToggle();
+                this.setupSaving();
+            }
+
+            setupToggle() {
+                const hotzone = document.querySelector(".edit-hotzone");
+                let hideTimeout = null;
+                this.toggle.addEventListener("click", () => this.toggleEditMode());
+                hotzone.addEventListener("mouseenter", () => {
+                    clearTimeout(hideTimeout);
+                    this.toggle.classList.add("show");
+                });
+                hotzone.addEventListener("mouseleave", () => {
+                    hideTimeout = setTimeout(() => {
+                        if (!this.isActive) this.toggle.classList.remove("show");
+                    }, 400);
+                });
+                this.toggle.addEventListener("mouseenter", () => clearTimeout(hideTimeout));
+                this.toggle.addEventListener("mouseleave", () => {
+                    hideTimeout = setTimeout(() => {
+                        if (!this.isActive) this.toggle.classList.remove("show");
+                    }, 400);
+                });
+                hotzone.addEventListener("click", () => this.toggleEditMode());
+                document.addEventListener("keydown", event => {
+                    if ((event.key === "e" || event.key === "E") && event.target.getAttribute("contenteditable") !== "true") {
+                        this.toggleEditMode();
+                    }
+                    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+                        event.preventDefault();
+                        this.save();
+                    }
+                });
+            }
+
+            setupSaving() {
+                document.addEventListener("input", event => {
+                    if (event.target.getAttribute("contenteditable") === "true") this.save();
+                });
+            }
+
+            toggleEditMode() {
+                this.isActive = !this.isActive;
+                document.body.classList.toggle("editing", this.isActive);
+                this.toggle.classList.toggle("active", this.isActive);
+                document.querySelectorAll("[data-editable='true']").forEach(el => {
+                    el.setAttribute("contenteditable", this.isActive ? "true" : "false");
+                });
+            }
+
+            save() {
+                const data = Array.from(document.querySelectorAll("[data-editable='true']")).map(el => el.innerHTML);
+                localStorage.setItem(this.key, JSON.stringify(data));
+            }
+
+            load() {
+                const raw = localStorage.getItem(this.key);
+                if (!raw) return;
+                try {
+                    const data = JSON.parse(raw);
+                    document.querySelectorAll("[data-editable='true']").forEach((el, index) => {
+                        if (data[index] !== undefined) el.innerHTML = data[index];
+                    });
+                } catch (error) {
+                    console.warn("Could not load edits", error);
+                }
+            }
+        }
+
+        new SlidePresentation();
+        new InlineEditor();
+    </script>
+</body>
+</html>

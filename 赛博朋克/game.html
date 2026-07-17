@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏系统 — CYBERPUNK 2077</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tomorrow:wght@300;400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/cyberpunk.css">
+    <style>
+        .page-hero{background:radial-gradient(ellipse at 50% 40%,rgba(0,240,255,.05),transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(252,238,9,.04),transparent 50%),var(--black-alt)}
+        .split-layout{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+        .text-block h3{font-family:var(--font-tech);font-size:1.6rem;font-weight:600;letter-spacing:2px;color:#fff;margin-bottom:1rem;text-transform:uppercase}
+        .text-block .em{color:var(--yellow);font-weight:600}
+        .text-block p{color:var(--grey);font-size:.92rem;margin-bottom:.8rem;line-height:1.8}
+        .attr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem}
+        .attr-card{background:var(--dark-grey);clip-path:polygon(0 16px,16px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);padding:1.8rem;text-align:center;transition:.4s;cursor:default}
+        .attr-card:hover{background:#1e2532;transform:translateY(-4px);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+        .attr-card .attr-icon{font-size:2.5rem;margin-bottom:.5rem}
+        .attr-card h4{font-family:var(--font-tech);font-size:1.1rem;font-weight:600;letter-spacing:2px;color:var(--yellow);text-transform:uppercase}
+        .attr-card p{color:var(--grey);font-size:.8rem;line-height:1.7;margin-top:.5rem}
+        .cyber-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+        .cyber-item{background:var(--dark-grey);clip-path:polygon(0 16px,16px 0,100% 0,100% calc(100% - 0),calc(100% - 0) 100%,0 100%,0 calc(100% - 16px));padding:1.5rem;display:flex;gap:1rem;align-items:flex-start;transition:.4s;cursor:default;border-left:2px solid var(--pink)}
+        .cyber-item:hover{background:#1e2532;transform:translateX(4px)}
+        .cyber-item .ci-icon{font-size:2rem;flex-shrink:0}
+        .cyber-item h4{font-family:var(--font-tech);font-size:1rem;font-weight:600;letter-spacing:1px;color:#fff;text-transform:uppercase}
+        .cyber-item p{color:var(--grey);font-size:.8rem;line-height:1.7;margin-top:.3rem}
+        @media(max-width:768px){.split-layout{grid-template-columns:1fr;gap:2rem}}
+    </style>
+</head>
+<body>
+    <canvas id="fragmentCanvas"></canvas><div class="glitch-blocks" id="glitchBlocks"></div>
+    <div class="rgb-bar" style="top:22%;left:0;width:100%;background:linear-gradient(90deg,transparent,rgba(0,240,255,.15) 40%,rgba(252,238,9,.15) 80%,transparent)"></div>
+    <div class="noise-overlay"></div>
+    <div class="music-player"><span class="music-label">AMBIENT</span><button class="music-btn" id="musicBtn"><span class="icon">♪</span></button></div>
+
+    <nav class="nav" id="nav"><div class="nav-inner">
+        <a href="index.html" class="nav-logo">CYBERPUNK 2077</a>
+        <div class="menu-toggle" id="menuBtn"><span></span><span></span><span></span></div>
+        <ul class="nav-links" id="navMenu">
+            <li><a href="index.html">首页</a></li><li><a href="world.html">世界观</a></li><li><a href="game.html">游戏系统</a></li><li><a href="guide.html">攻略流派</a></li><li><a href="edgerunners.html">边缘行者</a></li><li><a href="gallery.html">画廊</a></li>
+        </ul>
+    </div></nav>
+
+    <section class="page-hero">
+        <div class="page-subtitle">GAME SYSTEMS</div>
+        <h1 class="glitch" data-text="扮演 V" style="font-size:clamp(2.5rem,7vw,5rem)">扮演 V</h1>
+        <p style="color:var(--grey);max-width:600px;margin:2rem auto 0;font-size:.95rem">开放世界动作冒险RPG，由CD Projekt RED开发。基于迈克·庞德史密斯的经典桌游《赛博朋克2020》世界观。</p>
+        <div class="tags" style="justify-content:center;margin-top:1.5rem"><span class="tag">开放世界</span><span class="tag">第一人称RPG</span><span class="tag">中文配音</span><span class="tag y">Steam好评如潮</span></div>
+    </section>
+
+    <!-- Story -->
+    <section class="section bg-alt">
+        <div class="container">
+            <div class="sec-tag">核心剧情</div><h2 class="sec-title">一枚<span class="hl">芯片</span>，两个灵魂</h2>
+            <div class="split-layout">
+                <div class="img-frame reveal"><img src="images/characters/强尼银手.png" alt="强尼银手" onerror="this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column><div style=font-size:3rem>🎸</div><div style=font-family:var(--font-tech);font-size:1.2rem;color:var(--yellow);letter-spacing:2px>JOHNNY SILVERHAND</div></div>'"></div>
+                <div class="text-block reveal">
+                    <h3>你只有<span class="em">几周</span>时间</h3>
+                    <p>扮演<span class="em">V</span>——一名在夜之城崭露头角的雇佣兵。在一次看似普通的委托中，你卷入荒坂公司的巨大阴谋。名为<span class="em">"圣物"（Relic）</span>的生物芯片承载着已故传奇摇滚巨星<span class="em">强尼·银手</span>（基努·里维斯 饰）的数字意识。</p>
+                    <p>芯片纳米技术正在覆盖你的神经元——意识被强尼取代。只有几周时间找到分离两人的方法。你的每个决定都影响故事走向和最终结局，游戏共有<span class="em">多个不同结局</span>。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Lifepaths -->
+    <section class="section bg-dark">
+        <div class="container">
+            <div class="sec-tag">角色创建</div><h2 class="sec-title">三种<span class="hl">出身</span></h2>
+            <p class="sec-desc">选择V的出身背景。不同出身带来独特的对话选项、序章体验和NPC态度。虽不改变主线结局，但每条路都让夜之城向你展示不同面貌。</p>
+            <div class="card-grid">
+                <div class="card reveal" style="border-top:3px solid #ffaa00;border-left:none"><div class="card-icon">🏜️</div><h3>流浪者 NOMAD</h3><p>来自夜之城外的荒原（Badlands）。作为流浪者家族一员，熟知引擎的每一声轰鸣。在废土生存的法则和对自由的渴望把你带到夜之城，但城市的高墙远比沙漠更加残酷。与荒原居民打交道有独特优势，且精通车辆驾驶。</p></div>
+                <div class="card reveal" style="border-top:3px solid var(--red);border-left:none"><div class="card-icon">🌃</div><h3>街头小子 STREET KID</h3><p>从小混迹于夜之城街头，熟悉每一条暗巷的规则。了解帮派运作方式，知道哪个街区属于谁。与街头人物的天然默契让你在黑市交易和帮派周旋中如鱼得水。你是这座城市真正的"本地人"。</p></div>
+                <div class="card reveal" style="border-top:3px solid var(--cyan);border-left:none"><div class="card-icon">💼</div><h3>公司员工 CORPO</h3><p>曾是荒坂反情报部门的一员，精通谈判、威胁与操控。在一场内斗被剥夺一切后从摩天大楼跌落到街头，但在企业界的知识与高层人脉仍是你最强大的武器。你知道权力游戏的规则——因为你曾是玩家。</p></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Attributes -->
+    <section class="section bg-alt">
+        <div class="container">
+            <div class="sec-tag">角色成长</div><h2 class="sec-title">五大<span class="hl">属性</span></h2>
+            <p class="sec-desc">属性点决定你能装备的义体和使用的技能。<span style="color:var(--yellow)">属性点只能重置一次</span>，投入前请三思。技能点则可以随时免费重置。</p>
+            <div class="attr-grid">
+                <div class="attr-card reveal"><div class="attr-icon">💪</div><h4>肉体</h4><p>生命值、耐力、近战伤害。使用霰弹枪、轻机枪和大猩猩手臂的基础。影响力量对话选项。</p></div>
+                <div class="attr-card reveal"><div class="attr-icon">🎯</div><h4>反应</h4><p>移动速度、暴击率、闪避。使用步枪、手枪和武士刀的基礎。冲刺与空中闪避的核心属性。</p></div>
+                <div class="attr-card reveal"><div class="attr-icon">🔧</div><h4>技术能力</h4><p>护甲值、科技武器伤害、义体容量上限。解锁高级义体和武器升级选项。开门破锁的关键属性。</p></div>
+                <div class="attr-card reveal"><div class="attr-icon">🧠</div><h4>智力</h4><p>快速破解伤害、RAM上限。使用智能武器和黑客技能的核心属性。影响网络对话与信息收集。</p></div>
+                <div class="attr-card reveal"><div class="attr-icon">🕶️</div><h4>镇定</h4><p>暴击伤害、潜行效果、敌人侦测距离。使用手枪和狙击步枪的辅助属性。冷静对话选项的基础。</p></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Cyberware -->
+    <section class="section bg-dark">
+        <div class="container">
+            <div class="sec-tag">赛博改造</div><h2 class="sec-title">核心<span class="hl">义体</span></h2>
+            <p class="sec-desc">通过义体医生（Ripperdoc）安装赛博义体是游戏的核心系统。以下是改变游戏体验的关键义体。</p>
+            <div class="cyber-grid">
+                <div class="cyber-item reveal"><div class="ci-icon">⚡</div><div><h4>斯安威斯坦 Sandevistan</h4><p>操作系统义体。激活后进入子弹时间，周围敌人动作大幅放慢。反应武士流派的核心，让你在战场上化身不可触及的幽灵。</p></div></div>
+                <div class="cyber-item reveal"><div class="ci-icon">🦍</div><div><h4>大猩猩手臂 Gorilla Arms</h4><p>手臂义体。大幅提升近战伤害，拳击任务只需几拳即可解决。提供+6肉体加成用于属性检定，轻松通过任何力量门槛。</p></div></div>
+                <div class="cyber-item reveal"><div class="ci-icon">🦿</div><div><h4>强化肌腱 Reinforced Tendons</h4><p>腿部义体。获得二段跳能力——彻底改变探索与战斗的方式。配合冲刺技能实现空中冲刺，抵达原本无法到达的位置。</p></div></div>
+                <div class="cyber-item reveal"><div class="ci-icon">🔌</div><div><h4>螳螂刀 Mantis Blades</h4><p>手臂义体。从手臂弹出两把致命利刃，可蓄力冲刺攻击远处的敌人。攻速快、伤害高，是近战流派的另一选择。</p></div></div>
+                <div class="cyber-item reveal"><div class="ci-icon">🎯</div><div><h4>智能链接 Smart Link</h4><p>手部义体。使智能武器的子弹可以自动追踪目标。配合智能冲锋枪或智能手枪，中距离战斗中几乎无需手动瞄准。</p></div></div>
+                <div class="cyber-item reveal"><div class="ci-icon">👁️</div><div><h4>光学迷彩 Optical Camo</h4><p>表皮义体。激活后可短暂隐身，脱离战斗或完成潜行暗杀。潜行枪手流派的核心装备，让你成为真正的幽灵杀手。</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Key Characters -->
+    <section class="section bg-dark">
+        <div class="container">
+            <div class="sec-tag">重要角色</div><h2 class="sec-title">并肩<span class="hl">同行者</span></h2>
+            <p class="sec-desc">在夜之城的旅途中，V并非孤身一人。这些角色将在你的故事中留下不可磨灭的印记。</p>
+            <div class="split-layout">
+                <div class="img-frame reveal"><img src="images/characters/杰克.png" alt="杰克·威尔斯" onerror="this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column><div style=font-size:3rem>🤝</div><div style=font-family:var(--font-tech);font-size:1.2rem;color:var(--yellow);letter-spacing:2px>JACKIE WELLES</div></div>'"></div>
+                <div class="text-block reveal">
+                    <h3><span class="em">杰克·威尔斯</span></h3>
+                    <p>V在夜之城最亲密的伙伴和兄弟。一个心怀梦想、体格魁梧的前瓦伦蒂诺帮成员。他有着一颗金子般的心，梦想着成为来生酒吧的传奇人物。在"大抢劫"任务中，他与V并肩作战，但命运给这段友情画上了残酷的句号。</p>
+                    <p>杰克的离去是V故事中最深刻的伤痛之一。他留给V的不仅是一段未完的传奇梦，更是支撑V继续前行的力量。来生酒吧里以他命名的酒——<span class="em">"杰克·威尔斯"</span>——是对这位战士最好的纪念。</p>
+                </div>
+            </div>
+            <div class="split-layout" style="margin-top:4rem">
+                <div class="text-block reveal">
+                    <h3><span class="em">朱迪·阿尔瓦雷兹</span></h3>
+                    <p>夜之城最顶尖的超梦（Braindance）编辑师之一，莫克斯帮（The Mox）的成员。她是一名理想主义者，渴望用超梦技术改变世界，却在一次次失望中被这座城市磨平了棱角。</p>
+                    <p>朱迪是V可以发展深厚关系的角色之一。她的故事线涉及爱情、背叛、复仇与自我救赎。无论你选择什么样的V，朱迪都会是你在夜之城最重要的一段羁绊。</p>
+                </div>
+                <div class="img-frame reveal"><img src="images/characters/朱迪.jpg" alt="朱迪·阿尔瓦雷兹" onerror="this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column><div style=font-size:3rem>💜</div><div style=font-family:var(--font-tech);font-size:1.2rem;color:var(--cyan);letter-spacing:2px>JUDY ALVAREZ</div></div>'"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer"><div class="footer-logo">CYBERPUNK 2077</div><p class="footer-desc">选择你的路，活出你的传奇。</p><ul class="footer-links"><li><a href="index.html">首页</a></li><li><a href="guide.html">攻略流派 →</a></li><li><a href="https://www.cyberpunk.net" target="_blank" rel="noopener">官方网站</a></li></ul><div class="footer-div"></div><p class="copyright">© 2026 CYBERPUNK 2077 Fan Page</p></footer>
+    <script src="js/cyberpunk.js"></script>
+</body>
+</html>
